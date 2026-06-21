@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Picker & Group Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'bounce-short': 'bounce 1s ease-in-out 1',
+                        'pulse-fast': 'pulse 0.3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .font-retro {
+            font-family: 'Press Start 2P', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <div class="flex-grow flex flex-col w-full max-w-7xl mx-auto px-4 py-6">
+        
+        <!-- Header -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-white/10 pb-6">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🎯</span>
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                        Student Picker
+                    </h1>
+                </div>
+                <p class="text-slate-400 text-sm mt-1">
+                    Premium dynamic classroom selector & group generator
+                </p>
+            </div>
+
+            <!-- Top Utility Actions (Themes, Class Selector) -->
+            <div class="flex flex-wrap items-center gap-4">
+                
+                <!-- Class Selector -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Group/Class:</span>
+                    <select id="class-select" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+
+                <!-- Theme Customizer Dropdown -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Theme:</span>
+                    <select id="theme-select" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-white/10 mb-6 overflow-x-auto gap-2">
+            <button id="tab-btn-picker" class="px-5 py-3 font-semibold text-sm rounded-t-lg transition-all duration-200 border-b-2 border-white text-white bg-white/5 flex items-center gap-2 whitespace-nowrap">
+                <span>🎲</span> Single Student Picker
+            </button>
+            <button id="tab-btn-groups" class="px-5 py-3 font-semibold text-sm rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2 whitespace-nowrap">
+                <span>👥</span> Smart Group Maker
+            </button>
+            <button id="tab-btn-database" class="px-5 py-3 font-semibold text-sm rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2 whitespace-nowrap">
+                <span>📂</span> Class Database
+            </button>
+        </div>
+
+        <!-- MAIN CONTENTS -->
+        <main class="flex-grow">
+            
+            <!-- 1. SINGLE PICKER TAB -->
+            <div id="tab-picker" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Spinner/Hero Display Section -->
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    <div id="picker-card" class="p-8 rounded-2xl border transition-all duration-300 min-h-[400px] flex flex-col justify-between items-center relative overflow-hidden">
+                        
+                        <!-- Status header inside container -->
+                        <div class="w-full flex justify-between items-center z-10">
+                            <span id="picker-stats-badge" class="px-3 py-1 rounded-full text-xs font-semibold">
+                                Class -- • Available: --/--
+                            </span>
+                            
+                            <button id="voice-toggle-btn" class="p-2 rounded-lg transition-all duration-200 flex items-center gap-1 text-xs bg-slate-700/50 text-slate-400" title="Speak student's name automatically using sound voice assistant">
+                                <span>🔇 Voice Off</span>
+                            </button>
+                        </div>
+
+                        <!-- Main display arena -->
+                        <div id="display-arena" class="flex-grow flex flex-col justify-center items-center my-8 w-full z-10 text-center">
+                            <!-- Populated dynamically: idle, spinning, or winner -->
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="w-full flex flex-col sm:flex-row gap-4 items-center justify-center z-10">
+                            <button id="pick-button" class="w-full sm:w-auto px-10 py-4 rounded-xl font-extrabold text-lg flex items-center justify-center gap-3 transition-transform duration-100 active:scale-95 disabled:opacity-50 disabled:pointer-events-none shadow-lg">
+                                <span>🎲</span> Pick Student
+                            </button>
+
+                            <button id="reset-exclusions-btn" class="w-full sm:w-auto px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-200">
+                                🔄 Reset Session Exclusions
+                            </button>
+                        </div>
+
+                        <!-- Atmospheric decorative background nodes -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 w-64 h-64 bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    </div>
+                </div>
+
+                <!-- Sidebar: Quick Exclusion List & Roster Tracker -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div id="exclusions-card" class="p-6 rounded-2xl border flex flex-col h-full max-h-[460px]">
+                        <div class="mb-4">
+                            <h3 class="text-base font-bold text-white flex justify-between items-center">
+                                <span>Roster & Attendance</span>
+                                <span id="exclusion-count-badge" class="text-xs bg-white/10 px-2 py-0.5 rounded text-slate-300">
+                                    0 excluded
+                                </span>
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">
+                                Tap a name to toggle exclusion. Use ✏️ to edit or 🚫 to mark absent/disabled.
+                            </p>
+                        </div>
+
+                        <!-- List container -->
+                        <div id="exclusions-list" class="flex-grow overflow-y-auto pr-1 space-y-1.5">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 2. GROUP GENERATOR TAB -->
+            <div id="tab-groups" class="hidden space-y-8">
+                
+                <!-- Group Configuration Controls Panel -->
+                <div id="groups-control-panel" class="p-6 rounded-2xl border grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                    
+                    <!-- Size Mode Selection -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Grouping Mode</label>
+                        <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
+                            <button id="mode-count-btn" class="flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow">
+                                Number of Groups
+                            </button>
+                            <button id="mode-size-btn" class="flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 text-slate-400 hover:text-white">
+                                Members/Group
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Number / Value input -->
+                    <div>
+                        <label id="group-val-label" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                            How many groups?
+                        </label>
+                        <input id="group-size-val" type="number" min="1" max="100" value="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+
+                    <!-- Group Naming Themes -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Group Naming Theme</label>
+                        <select id="naming-theme-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Trigger Button -->
+                    <div>
+                        <button id="generate-groups-btn" class="w-full px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-transform duration-200 active:scale-95">
+                            <span>⚡</span> Generate Groups
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Generated Groups Display -->
+                <div id="groups-display-area" class="space-y-6">
+                    <!-- Populated dynamically or empty fallback -->
+                </div>
+
+            </div>
+
+            <!-- 3. CLASS DATABASE TAB -->
+            <div id="tab-database" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Database visualizer -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div id="database-card" class="p-6 rounded-2xl border">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <span>🗂️</span> Active Group Roster: <span id="db-class-highlight" class="text-indigo-400">2A</span>
+                                </h3>
+                                <p id="db-total-count" class="text-xs text-slate-400 mt-1">
+                                    Total Student Entries: -- students
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button id="reset-db-btn" class="px-3.5 py-2 bg-red-950 hover:bg-red-900 border border-red-900/40 text-red-200 text-xs rounded-xl font-semibold">
+                                    Reset to Defaults
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Grid listing -->
+                        <div id="db-student-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Import / Manual additions sidebar -->
+                <div class="lg:col-span-4 space-y-6">
+                    
+                    <!-- Import CSV -->
+                    <div id="import-card" class="p-6 rounded-2xl border">
+                        <h4 class="font-bold text-sm text-white mb-2 flex items-center gap-1.5">
+                            📥 Import Custom CSV
+                        </h4>
+                        <p class="text-xs text-slate-400 mb-4">
+                            Upload your own classroom sheet. Column headers (first row) will define the groups automatically.
+                        </p>
+                        
+                        <div class="relative border-2 border-dashed border-white/10 rounded-xl hover:border-indigo-500/50 transition-colors p-4 flex flex-col items-center justify-center text-center">
+                            <input type="file" id="csv-file-input" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <span class="text-3xl mb-1">📄</span>
+                            <span class="text-xs font-semibold text-indigo-400">Choose CSV File</span>
+                            <span class="text-[10px] text-slate-500 mt-1">Drag and drop file here</span>
+                        </div>
+                    </div>
+
+                    <!-- Manual entry creation -->
+                    <form id="manual-class-form" class="p-6 rounded-2xl border">
+                        <h4 class="font-bold text-sm text-white mb-2 flex items-center gap-1.5">
+                            ✏️ Manual Input Class
+                        </h4>
+                        <p class="text-xs text-slate-400 mb-4">
+                            Create a custom group database quickly.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 font-bold mb-1">Group / Class Name</label>
+                                <input type="text" id="manual-class-name" required placeholder="e.g. 3A, Advanced Biology" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 font-bold mb-1">Student Names</label>
+                                <textarea id="manual-class-list" required rows="4" placeholder="Enter names separated by commas or line breaks." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-2 rounded-xl">
+                                Add Group
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Footer branding -->
+        <footer class="mt-12 border-t border-white/10 pt-4 text-center text-xs text-slate-500">
+            Student Picker — Created with high-speed classroom interaction in mind. Powered by 10 customized deployment styles.
+        </footer>
+
+    </div>
+
+    <!-- Main Logic Script -->
+    <script>
+        // Sound Synthesis helper using Web Audio API (No external sound files required)
+        const playSound = (type) => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!ctx) return;
+                
+                if (type === 'tick') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.05);
+                } else if (type === 'fanfare') {
+                    const now = ctx.currentTime;
+                    const playTone = (freq, start, duration) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.setValueAtTime(freq, start);
+                        gain.gain.setValueAtTime(0, start);
+                        gain.gain.linearRampToValueAtTime(0.15, start + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+                        osc.start(start);
+                        osc.stop(start + duration);
+                    };
+                    playTone(523.25, now, 0.15); // C5
+                    playTone(659.25, now + 0.12, 0.15); // E5
+                    playTone(783.99, now + 0.24, 0.15); // G5
+                    playTone(1046.50, now + 0.36, 0.4); // C6
+                } else if (type === 'drumroll') {
+                    const now = ctx.currentTime;
+                    for (let i = 0; i < 15; i++) {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.setValueAtTime(100 + Math.random() * 40, now + (i * 0.08));
+                        gain.gain.setValueAtTime(0.08, now + (i * 0.08));
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.08) + 0.07);
+                        osc.start(now + (i * 0.08));
+                        osc.stop(now + (i * 0.08) + 0.07);
+                    }
+                }
+            } catch (e) {
+                console.log("Audio not supported yet.");
+            }
+        };
+
+        // Preloaded dataset from user's CSV
+        const DEFAULT_CLASSES = {
+            "2A": [
+                "Lia", "Juan Emilio", "Victor", "Litzy", "Gerardo", "Ana", "Angel", "Natalia", 
+                "Jhoana", "Pulina", "Elvia", "Alexa", "Fatima", "Venus", "Sinai", "Kevin", 
+                "Keyla", "Yaxal", "Dafne", "Nic"
+            ],
+            "2B": [
+                "Dayana", "Kenia", "Juan Carlos", "Nathalie", "Mafer", "Angie", "Jennifer", 
+                "Chema", "Grethel", "Joseph", "Ingrid", "Kim", "Vane", "Evelyn", "Grecia", 
+                "Emily", "Valeria", "Lupita", "Camia", "Aylin"
+            ],
+            "5A": [
+                "Elena", "Sarahi", "Adrian", "Maritza", "Ulises", "Erick", "Lupita", "Ines", 
+                "Ashlee", "Leslie", "Carol", "Yasmin", "Montse", "Hanna", "Dulce", "Nirvana"
+            ],
+            "5B": [
+                "Liz", "Alex", "Tony", "Wendy", "Gian", "Jackie", "Vladi", "Mike", "Esme", 
+                "Laila", "Caro", "Odalys", "Clau", "Mar", "Cesar", "Arely"
+            ]
+        };
+
+        // Themes
+        const THEMES = [
+            {
+                id: 'indigo',
+                name: 'Classic Indigo',
+                bg: 'bg-slate-900',
+                cardBg: 'bg-slate-800/90 border-slate-700/50',
+                accent: 'bg-indigo-600 hover:bg-indigo-500 text-white',
+                accentText: 'text-indigo-400',
+                accentBorder: 'border-indigo-500/30',
+                secondary: 'bg-slate-700 hover:bg-slate-600 text-slate-100',
+                tag: 'border-indigo-500/20 bg-indigo-500/5 text-indigo-300',
+                gradient: 'from-indigo-600 via-purple-600 to-pink-600',
+                bodyStyle: { background: 'radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%)' }
+            },
+            {
+                id: 'sunset',
+                name: 'Sunset Glow',
+                bg: 'bg-orange-950',
+                cardBg: 'bg-stone-900/95 border-amber-800/40',
+                accent: 'bg-amber-600 hover:bg-amber-500 text-white',
+                accentText: 'text-amber-400',
+                accentBorder: 'border-amber-600/30',
+                secondary: 'bg-stone-800 hover:bg-stone-700 text-stone-200',
+                tag: 'border-amber-500/20 bg-amber-500/5 text-amber-300',
+                gradient: 'from-amber-500 via-orange-600 to-rose-600',
+                bodyStyle: { background: 'radial-gradient(circle at top, #451a03 0%, #1c1917 100%)' }
+            },
+            {
+                id: 'emerald',
+                name: 'Emerald Forest',
+                bg: 'bg-zinc-950',
+                cardBg: 'bg-zinc-900/95 border-emerald-800/40',
+                accent: 'bg-emerald-600 hover:bg-emerald-500 text-white',
+                accentText: 'text-emerald-400',
+                accentBorder: 'border-emerald-600/30',
+                secondary: 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200',
+                tag: 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300',
+                gradient: 'from-emerald-500 via-teal-600 to-green-600',
+                bodyStyle: { background: 'radial-gradient(circle at top, #022c22 0%, #09090b 100%)' }
+            },
+            {
+                id: 'cyberpunk',
+                name: 'Cyberpunk Neon',
+                bg: 'bg-neutral-950',
+                cardBg: 'bg-purple-950/40 border-pink-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]',
+                accent: 'bg-rose-600 hover:bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.5)]',
+                accentText: 'text-cyan-400 font-semibold',
+                accentBorder: 'border-pink-500',
+                secondary: 'bg-neutral-900 border border-cyan-500/30 hover:bg-neutral-800 text-cyan-300',
+                tag: 'border-rose-500/30 bg-rose-500/10 text-rose-300',
+                gradient: 'from-pink-500 via-purple-600 to-cyan-500',
+                bodyStyle: { background: 'radial-gradient(circle at top, #2e0854 0%, #030712 100%)' }
+            },
+            {
+                id: 'frost',
+                name: 'Nordic Frost',
+                bg: 'bg-slate-950',
+                cardBg: 'bg-slate-900/90 border-sky-800/30',
+                accent: 'bg-sky-600 hover:bg-sky-500 text-white',
+                accentText: 'text-sky-300',
+                accentBorder: 'border-sky-500/30',
+                secondary: 'bg-slate-800 hover:bg-slate-700 text-slate-100',
+                tag: 'border-sky-500/20 bg-sky-500/5 text-sky-200',
+                gradient: 'from-sky-400 via-indigo-500 to-emerald-400',
+                bodyStyle: { background: 'radial-gradient(circle at top, #0c4a6e 0%, #020617 100%)' }
+            },
+            {
+                id: 'royal',
+                name: 'Midnight Royal',
+                bg: 'bg-neutral-950',
+                cardBg: 'bg-slate-900/90 border-amber-500/20',
+                accent: 'bg-amber-500 hover:bg-amber-400 text-neutral-950 font-bold',
+                accentText: 'text-amber-400',
+                accentBorder: 'border-amber-500/30',
+                secondary: 'bg-slate-800 hover:bg-slate-700 text-amber-100',
+                tag: 'border-amber-500/10 bg-amber-500/5 text-amber-200',
+                gradient: 'from-blue-700 via-purple-700 to-amber-500',
+                bodyStyle: { background: 'radial-gradient(circle at top, #172554 0%, #0a0a0a 100%)' }
+            },
+            {
+                id: 'retro',
+                name: 'Retro Arcade',
+                bg: 'bg-black',
+                cardBg: 'bg-black border-2 border-green-500 rounded-none shadow-[4px_4px_0px_#22c55e]',
+                accent: 'bg-green-500 hover:bg-green-400 text-black font-retro text-xs p-3 rounded-none shadow-[2px_2px_0px_#ffffff]',
+                accentText: 'text-green-400 font-retro text-sm',
+                accentBorder: 'border-2 border-green-500',
+                secondary: 'bg-black border border-white hover:bg-zinc-900 text-white font-retro text-[10px] rounded-none',
+                tag: 'border border-green-500/50 bg-black text-green-300 font-retro text-[8px]',
+                gradient: 'from-green-500 via-yellow-500 to-red-500',
+                bodyStyle: { background: '#000000' }
+            },
+            {
+                id: 'lavender',
+                name: 'Sweet Lavender',
+                bg: 'bg-stone-950',
+                cardBg: 'bg-stone-900/95 border-fuchsia-900/30',
+                accent: 'bg-fuchsia-600 hover:bg-fuchsia-500 text-white',
+                accentText: 'text-fuchsia-300',
+                accentBorder: 'border-fuchsia-600/30',
+                secondary: 'bg-stone-800 hover:bg-stone-700 text-stone-200',
+                tag: 'border-fuchsia-500/20 bg-fuchsia-500/5 text-fuchsia-300',
+                gradient: 'from-fuchsia-500 via-purple-500 to-pink-400',
+                bodyStyle: { background: 'radial-gradient(circle at top, #3b0764 0%, #1c1917 100%)' }
+            },
+            {
+                id: 'crimson',
+                name: 'Crimson Velvet',
+                bg: 'bg-stone-950',
+                cardBg: 'bg-stone-900/95 border-rose-900/40',
+                accent: 'bg-rose-700 hover:bg-rose-600 text-white',
+                accentText: 'text-rose-400',
+                accentBorder: 'border-rose-600/30',
+                secondary: 'bg-stone-800 hover:bg-stone-700 text-stone-200',
+                tag: 'border-rose-500/20 bg-rose-500/5 text-rose-300',
+                gradient: 'from-rose-600 via-red-700 to-amber-600',
+                bodyStyle: { background: 'radial-gradient(circle at top, #4c0519 0%, #1c1917 100%)' }
+            },
+            {
+                id: 'ocean',
+                name: 'Ocean Deep',
+                bg: 'bg-slate-950',
+                cardBg: 'bg-slate-900/95 border-cyan-800/40',
+                accent: 'bg-cyan-600 hover:bg-cyan-500 text-white',
+                accentText: 'text-cyan-400',
+                accentBorder: 'border-cyan-600/30',
+                secondary: 'bg-slate-800 hover:bg-slate-700 text-slate-200',
+                tag: 'border-cyan-500/20 bg-cyan-500/5 text-cyan-300',
+                gradient: 'from-cyan-500 via-blue-600 to-teal-500',
+                bodyStyle: { background: 'radial-gradient(circle at top, #083344 0%, #020617 100%)' }
+            }
+        ];
+
+        // 10 Group Naming Themes
+        const GROUP_NAME_THEMES = {
+            mythical: {
+                name: "Mythical Beasts",
+                prefixes: ["Golden", "Ancient", "Roaring", "Shadow", "Celestial", "Storm", "Mystic", "Iron", "Cursed", "Astral"],
+                nouns: ["Dragons", "Phoenixes", "Griffins", "Hydras", "Basilisks", "Krakens", "Chimera", "Valkyries", "Sirens", "Centaurs"]
+            },
+            space: {
+                name: "Space Explorers",
+                prefixes: ["Cosmic", "Supernova", "Galactic", "Interstellar", "Nebula", "Solar", "Quantum", "Orbiting", "Apollo", "Zenith"],
+                nouns: ["Voyagers", "Pioneers", "Rangers", "Comets", "Astroids", "Pulses", "Quarks", "Rockets", "Stargazers", "Aliens"]
+            },
+            scientists: {
+                name: "Famous Scientists",
+                prefixes: ["Quantum", "Relativity", "Evolutionary", "Atomic", "Newtonian", "Tesla", "Curie", "Galileo", "Darwin", "Edison"],
+                nouns: ["Thinkers", "Innovators", "Alchemists", "Pioneers", "Analyzers", "Theorists", "Catalysts", "Explorers", "Sages", "Geniuses"]
+            },
+            coffee: {
+                name: "Coffee Lovers",
+                prefixes: ["Double-Shot", "Frothy", "Caffeinated", "Dark Roast", "Cold Brew", "Steaming", "Artisan", "Sweet", "Organic", "Spiced"],
+                nouns: ["Baristas", "Espressos", "Lattes", "Macchiatos", "Americanos", "Mochas", "Cappuccinos", "Beans", "Mugs", "Grinders"]
+            },
+            animals: {
+                name: "Wild Animals",
+                prefixes: ["Fierce", "Sleek", "Stealthy", "Wild", "Majestic", "Crafty", "Agile", "Mighty", "Nomadic", "Vibrant"],
+                nouns: ["Panthers", "Falcons", "Wolves", "Cobras", "Foxes", "Eagles", "Sharks", "Tigers", "Bears", "Leopards"]
+            },
+            elements: {
+                name: "Elemental Forces",
+                prefixes: ["Blazing", "Glacial", "Volcanic", "Tectonic", "Thunderous", "Eolian", "Plasma", "Liquid", "Static", "Magnetic"],
+                nouns: ["Fires", "Tides", "Winds", "Quakes", "Bolts", "Streams", "Flares", "Crystals", "Charges", "Beams"]
+            },
+            colors: {
+                name: "Neon Spectrum",
+                prefixes: ["Electric", "Vibrant", "Luminous", "Infrared", "Ultraviolet", "Psychedelic", "Prismatic", "Fluorescent", "Deep-space", "Holographic"],
+                nouns: ["Pinks", "Cyans", "Purples", "Mints", "Crimsons", "Yellows", "Emeralds", "Indigoes", "Scarlets", "Cobalts"]
+            },
+            wizards: {
+                name: "Wizard Academy",
+                prefixes: ["Spellbound", "Conjured", "Enchanted", "Runic", "Sorcerous", "Telepathic", "Mystical", "Charmed", "Arcane", "Esoteric"],
+                nouns: ["Warlocks", "Wizards", "Mages", "Alchemists", "Scribes", "Druids", "Apprentices", "Necromancers", "Sorcerers", "Pixies"]
+            },
+            tech: {
+                name: "Silicon Coders",
+                prefixes: ["Cybernetic", "Binary", "Algorithmic", "Encrypted", "Cloud-native", "Recursive", "Asynchronous", "Fullstack", "Decentralized", "Quantum"],
+                nouns: ["Hackers", "Scripts", "Compilers", "Matrices", "Nodeheads", "Logicians", "Processors", "Architects", "Bugs", "Daemons"]
+            },
+            superpowers: {
+                name: "Superheroes",
+                prefixes: ["Invincible", "Invisible", "Telekinetic", "Supersonic", "Elastic", "Magnetic", "Cosmic", "Quantum", "Shadow", "Vigilante"],
+                nouns: ["Avengers", "Defenders", "Guardians", "Titans", "Leaguers", "Mutants", "Crusaders", "Sentinels", "Champions", "Squads"]
+            }
+        };
+
+        // Application State
+        let state = {
+            classes: JSON.parse(JSON.stringify(DEFAULT_CLASSES)),
+            selectedClass: "2A",
+            currentTheme: THEMES[0],
+            activeTab: "picker",
+            
+            // Picker State
+            pickerResult: null,
+            isSpinning: false,
+            excludedStudents: [],
+            absentStudents: [], // Format: "ClassName:StudentName"
+            voiceEnabled: false,
+            
+            // Inline Edit state
+            editingStudent: null, // Format: "StudentName"
+            
+            // Groups State
+            groupSizeMode: "count", // "count" or "size"
+            groupSizeValue: 4,
+            namingTheme: "mythical",
+            generatedGroups: []
+        };
+
+        // DOM elements cache
+        const el = {
+            classSelect: document.getElementById('class-select'),
+            themeSelect: document.getElementById('theme-select'),
+            tabBtnPicker: document.getElementById('tab-btn-picker'),
+            tabBtnGroups: document.getElementById('tab-btn-groups'),
+            tabBtnDatabase: document.getElementById('tab-btn-database'),
+            
+            tabPicker: document.getElementById('tab-picker'),
+            tabGroups: document.getElementById('tab-groups'),
+            tabDatabase: document.getElementById('tab-database'),
+            
+            pickerCard: document.getElementById('picker-card'),
+            pickerStatsBadge: document.getElementById('picker-stats-badge'),
+            voiceToggleBtn: document.getElementById('voice-toggle-btn'),
+            displayArena: document.getElementById('display-arena'),
+            pickButton: document.getElementById('pick-button'),
+            resetExclusionsBtn: document.getElementById('reset-exclusions-btn'),
+            
+            exclusionsCard: document.getElementById('exclusions-card'),
+            exclusionCountBadge: document.getElementById('exclusion-count-badge'),
+            exclusionsList: document.getElementById('exclusions-list'),
+            
+            groupsControlPanel: document.getElementById('groups-control-panel'),
+            modeCountBtn: document.getElementById('mode-count-btn'),
+            modeSizeBtn: document.getElementById('mode-size-btn'),
+            groupValLabel: document.getElementById('group-val-label'),
+            groupSizeVal: document.getElementById('group-size-val'),
+            namingThemeSelect: document.getElementById('naming-theme-select'),
+            generateGroupsBtn: document.getElementById('generate-groups-btn'),
+            groupsDisplayArea: document.getElementById('groups-display-area'),
+            
+            databaseCard: document.getElementById('database-card'),
+            dbClassHighlight: document.getElementById('db-class-highlight'),
+            dbTotalCount: document.getElementById('db-total-count'),
+            dbStudentGrid: document.getElementById('db-student-grid'),
+            resetDbBtn: document.getElementById('reset-db-btn'),
+            
+            importCard: document.getElementById('import-card'),
+            csvFileInput: document.getElementById('csv-file-input'),
+            manualClassForm: document.getElementById('manual-class-form'),
+            manualClassName: document.getElementById('manual-class-name'),
+            manualClassList: document.getElementById('manual-class-list'),
+        };
+
+        // Helpers for UI compilation
+        const getAvailableStudents = () => {
+            const students = state.classes[state.selectedClass] || [];
+            return students.filter(s => {
+                const isExcluded = state.excludedStudents.includes(s);
+                const isAbsent = state.absentStudents.includes(`${state.selectedClass}:${s}`);
+                return !isExcluded && !isAbsent;
+            });
+        };
+
+        // Speech assistant API
+        const speakName = (name) => {
+            if (!state.voiceEnabled) return;
+            try {
+                const utterance = new SpeechSynthesisUtterance(name);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.1;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.error("Speech Synthesis unsupported.");
+            }
+        };
+
+        // Render functions
+        const renderTheme = () => {
+            const t = state.currentTheme;
+            
+            // Dynamic theme background apply
+            if (t.bodyStyle) {
+                Object.keys(t.bodyStyle).forEach(key => {
+                    document.body.style[key] = t.bodyStyle[key];
+                });
+            }
+
+            // Cards background and border updates
+            const cards = [el.pickerCard, el.exclusionsCard, el.groupsControlPanel, el.databaseCard, el.importCard, el.manualClassForm];
+            cards.forEach(c => {
+                c.className = c.className.replace(/\bbg-\S+ border-\S+/g, '');
+                c.classList.add(...t.cardBg.split(' '));
+            });
+
+            // Accent button updates
+            const primaryBtns = [el.pickButton, el.generateGroupsBtn];
+            primaryBtns.forEach(btn => {
+                btn.className = btn.className.replace(/\bbg-\S+ hover:bg-\S+ text-\S+/g, '');
+                btn.classList.add(...t.accent.split(' '));
+            });
+
+            // Secondary Buttons
+            const secondaryBtns = [el.resetExclusionsBtn];
+            secondaryBtns.forEach(btn => {
+                btn.className = btn.className.replace(/\bbg-\S+ hover:bg-\S+ text-\S+/g, '');
+                btn.classList.add(...t.secondary.split(' '));
+            });
+
+            // Badges & text accents
+            el.pickerStatsBadge.className = `px-3 py-1 rounded-full text-xs font-semibold ${t.tag}`;
+            el.dbClassHighlight.className = `font-bold ${t.accentText}`;
+
+            // Check if Retro Arcade styling is present for text elements
+            const retroLabel = document.getElementById('selected-winner-name');
+            if (retroLabel) {
+                if (t.id === 'retro') {
+                    retroLabel.className = "text-3xl font-retro text-green-400 py-4 px-8 rounded-2xl bg-white/5 border-2 border-green-500 shadow-2xl max-w-full truncate";
+                } else {
+                    retroLabel.className = "text-5xl md:text-7xl font-black tracking-tight py-4 px-8 rounded-2xl bg-white/5 border border-white/10 shadow-2xl max-w-full truncate";
+                }
+            }
+        };
+
+        const renderPickerTab = () => {
+            const list = state.classes[state.selectedClass] || [];
+            const available = getAvailableStudents();
+            
+            // Stats Badge Update
+            el.pickerStatsBadge.textContent = `Class ${state.selectedClass} • Available: ${available.length}/${list.length}`;
+            
+            // Voice toggle UI state
+            if (state.voiceEnabled) {
+                el.voiceToggleBtn.className = "p-2 rounded-lg transition-all duration-200 flex items-center gap-1 text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                el.voiceToggleBtn.innerHTML = "<span>🔊 Voice On</span>";
+            } else {
+                el.voiceToggleBtn.className = "p-2 rounded-lg transition-all duration-200 flex items-center gap-1 text-xs bg-slate-700/50 text-slate-400";
+                el.voiceToggleBtn.innerHTML = "<span>🔇 Voice Off</span>";
+            }
+
+            // Exclusions counter
+            const activeExclusionCount = state.excludedStudents.filter(s => list.includes(s)).length;
+            el.exclusionCountBadge.textContent = `${activeExclusionCount} excluded`;
+
+            // Render Roster Sidebar with custom controls (Edit, Exclude, Absent)
+            el.exclusionsList.innerHTML = '';
+            list.forEach(student => {
+                const absentKey = `${state.selectedClass}:${student}`;
+                const isAbsent = state.absentStudents.includes(absentKey);
+                const isExcluded = state.excludedStudents.includes(student);
+                const isEditing = state.editingStudent === student;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = `w-full p-2 rounded-xl text-sm font-medium flex items-center justify-between border transition-all duration-150 ${
+                    isAbsent 
+                        ? 'bg-slate-900/40 text-slate-500 border-slate-800 opacity-60' 
+                        : isExcluded
+                            ? 'bg-red-500/10 text-red-300 border-red-500/20'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-100 border-transparent'
+                }`;
+
+                if (isEditing) {
+                    wrapper.innerHTML = `
+                        <div class="flex items-center gap-2 w-full">
+                            <input type="text" id="inline-edit-${student}" value="${student}" class="w-full bg-slate-800 text-xs px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-indigo-500 text-white" />
+                            <button onclick="saveStudentEdit('${student}')" class="text-emerald-400 hover:text-emerald-300 text-xs px-1" title="Save">💾</button>
+                            <button onclick="cancelStudentEdit()" class="text-slate-400 hover:text-slate-200 text-xs px-1" title="Cancel">✕</button>
+                        </div>
+                    `;
+                } else {
+                    wrapper.innerHTML = `
+                        <div class="flex items-center gap-2 flex-grow cursor-pointer" onclick="toggleExcludeStudent('${student}')">
+                            <span class="text-xs shrink-0">${isAbsent ? '💤' : isExcluded ? '🔴' : '🟢'}</span>
+                            <span class="truncate ${isAbsent ? 'line-through' : isExcluded ? 'line-through' : ''}">${student}</span>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="startStudentEdit('${student}')" class="p-1 hover:text-white hover:bg-white/10 rounded transition-colors text-slate-400" title="Edit Name">✏️</button>
+                            <button onclick="toggleAbsentStatus('${student}')" class="p-1 hover:text-white hover:bg-white/10 rounded transition-colors ${isAbsent ? 'text-rose-400' : 'text-slate-400'}" title="${isAbsent ? 'Mark Active' : 'Mark Absent'}">
+                                ${isAbsent ? '🔌' : '🚫'}
+                            </button>
+                        </div>
+                    `;
+                }
+                el.exclusionsList.appendChild(wrapper);
+            });
+
+            if (list.length === 0) {
+                el.exclusionsList.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">No students in selected class.</div>`;
+            }
+
+            // Render Arena Display State
+            if (state.isSpinning) {
+                // Spinning layout handles in spin picker process to update name quickly
+            } else if (state.pickerResult) {
+                const retroModeClass = state.currentTheme.id === 'retro' 
+                    ? 'font-retro text-3xl text-green-400 py-4 px-8 rounded-2xl bg-white/5 border-2 border-green-500 shadow-2xl max-w-full truncate' 
+                    : 'text-5xl md:text-7xl font-black tracking-tight py-4 px-8 rounded-2xl bg-white/5 border border-white/10 shadow-2xl max-w-full truncate';
+                
+                el.displayArena.innerHTML = `
+                    <div class="animate-bounce-short flex flex-col items-center">
+                        <span class="text-5xl mb-4">⭐</span>
+                        <p class="text-amber-400 text-xs uppercase tracking-widest font-black mb-1">Selected Student</p>
+                        <h2 id="selected-winner-name" class="${retroModeClass}">
+                            ${state.pickerResult}
+                        </h2>
+                    </div>
+                `;
+            } else {
+                el.displayArena.innerHTML = `
+                    <div class="text-center opacity-60">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h3 class="text-xl font-bold">Ready to Roll</h3>
+                        <p class="text-sm text-slate-400 mt-1 max-w-sm">
+                            Press the trigger below to choose a random student.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Pick button disabled validation
+            el.pickButton.disabled = state.isSpinning || available.length === 0;
+        };
+
+        const renderGroupsTab = () => {
+            // Grouping Mode buttons updates
+            if (state.groupSizeMode === "count") {
+                el.modeCountBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow";
+                el.modeSizeBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 text-slate-400 hover:text-white";
+                el.groupValLabel.textContent = "How many groups?";
+            } else {
+                el.modeSizeBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow";
+                el.modeCountBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg transition-all duration-200 text-slate-400 hover:text-white";
+                el.groupValLabel.textContent = "Group Size";
+            }
+
+            // Render Groups display cards or fallback
+            if (state.generatedGroups.length > 0) {
+                let cardsHTML = '';
+                state.generatedGroups.forEach((group, idx) => {
+                    let membersListHTML = '';
+                    group.members.forEach((member, mIdx) => {
+                        membersListHTML += `
+                            <li class="text-sm text-slate-300 flex items-center gap-2 px-2 py-1 hover:bg-white/5 rounded-lg">
+                                <span class="text-xs text-slate-500">${mIdx + 1}.</span>
+                                <span>${member}</span>
+                            </li>
+                        `;
+                    });
+
+                    cardsHTML += `
+                        <div class="p-5 rounded-2xl ${state.currentTheme.cardBg} border transition-all duration-300 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-start justify-between gap-2 border-b border-white/5 pb-3 mb-3">
+                                    <h4 class="font-bold text-base text-white truncate max-w-[80%]">
+                                        ${group.name}
+                                    </h4>
+                                    <span class="bg-white/10 px-2 py-0.5 rounded text-xs font-semibold text-slate-300">
+                                        ${group.members.length} members
+                                    </span>
+                                </div>
+                                <ul class="space-y-1.5">
+                                    ${membersListHTML}
+                                </ul>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-white/5 flex justify-end">
+                                <button onclick="rerollGroupName('${group.id}', ${idx})" class="text-[10px] uppercase font-bold text-slate-400 hover:text-white flex items-center gap-1" title="Re-roll this group name">
+                                    🎲 Reroll Name
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                el.groupsDisplayArea.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>📋</span> Generated Groups (${state.generatedGroups.length})
+                        </h3>
+
+                        <div class="flex gap-2">
+                            <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5">
+                                🖨️ Print / Export PDF
+                            </button>
+                            <button onclick="clearGroups()" class="px-4 py-2 bg-red-950 hover:bg-red-900 border border-red-900/30 rounded-xl text-xs font-semibold text-red-300">
+                                Clear Groups
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${cardsHTML}
+                    </div>
+                `;
+            } else {
+                el.groupsDisplayArea.innerHTML = `
+                    <div class="text-center py-24 bg-white/5 border border-dashed border-white/10 rounded-2xl opacity-60">
+                        <div class="text-6xl mb-4">👥</div>
+                        <h3 class="text-xl font-bold">No groups generated yet</h3>
+                        <p class="text-sm text-slate-400 mt-1 max-w-sm mx-auto">
+                            Select your parameters above and click "Generate Groups" to form randomized balanced student clusters.
+                        </p>
+                    </div>
+                `;
+            }
+        };
+
+        const renderDatabaseTab = () => {
+            const list = state.classes[state.selectedClass] || [];
+            
+            el.dbClassHighlight.textContent = state.selectedClass;
+            el.dbTotalCount.textContent = `Total Student Entries: ${list.length} students`;
+            
+            el.dbStudentGrid.innerHTML = '';
+            list.forEach((student, idx) => {
+                const absentKey = `${state.selectedClass}:${student}`;
+                const isAbsent = state.absentStudents.includes(absentKey);
+                const isEditing = state.editingStudent === student;
+
+                const div = document.createElement('div');
+                div.className = `p-3 border rounded-xl text-sm flex items-center justify-between transition-all duration-150 ${
+                    isAbsent 
+                        ? 'bg-slate-900/40 text-slate-500 border-slate-800 opacity-60' 
+                        : 'bg-white/5 border-white/10 text-slate-100 hover:bg-white/10'
+                }`;
+
+                if (isEditing) {
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2 w-full">
+                            <input type="text" id="db-edit-${student}" value="${student}" class="w-full bg-slate-800 text-xs px-2 py-1 rounded border border-slate-600 focus:outline-none focus:border-indigo-500 text-white" />
+                            <button onclick="saveStudentEdit('${student}')" class="text-emerald-400 hover:text-emerald-300 text-xs px-1" title="Save">💾</button>
+                            <button onclick="cancelStudentEdit()" class="text-slate-400 hover:text-slate-200 text-xs px-1" title="Cancel">✕</button>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="text-xs text-slate-500 font-bold shrink-0">${idx + 1}.</span>
+                            <span class="truncate ${isAbsent ? 'line-through' : ''}">${student}</span>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="startStudentEdit('${student}')" class="p-1 hover:text-white rounded text-slate-400" title="Edit Name">✏️</button>
+                            <button onclick="toggleAbsentStatus('${student}')" class="p-1 hover:text-white rounded ${isAbsent ? 'text-rose-400' : 'text-slate-400'}" title="${isAbsent ? 'Mark Active' : 'Mark Absent'}">
+                                ${isAbsent ? '🔌' : '🚫'}
+                            </button>
+                            <button onclick="deleteStudent('${student}')" class="p-1 hover:text-red-400 rounded text-slate-400" title="Delete">✕</button>
+                        </div>
+                    `;
+                }
+                el.dbStudentGrid.appendChild(div);
+            });
+
+            if (list.length === 0) {
+                el.dbStudentGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-500 text-sm">
+                        This class currently has 0 registered student names. Use the forms on the right to add some.
+                    </div>
+                `;
+            }
+        };
+
+        // Tab selection logic
+        const setTab = (tabName) => {
+            state.activeTab = tabName;
+            state.editingStudent = null; // Reset editing state when swapping tabs
+            
+            // Adjust buttons class
+            const btns = [
+                { tab: 'picker', el: el.tabBtnPicker },
+                { tab: 'groups', el: el.tabBtnGroups },
+                { tab: 'database', el: el.tabBtnDatabase }
+            ];
+            
+            btns.forEach(b => {
+                if (b.tab === tabName) {
+                    b.el.className = "px-5 py-3 font-semibold text-sm rounded-t-lg transition-all duration-200 border-b-2 border-white text-white bg-white/5 flex items-center gap-2 whitespace-nowrap";
+                } else {
+                    b.el.className = "px-5 py-3 font-semibold text-sm rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-2 whitespace-nowrap";
+                }
+            });
+
+            // Adjust display container hidden classes
+            el.tabPicker.classList.toggle('hidden', tabName !== 'picker');
+            el.tabGroups.classList.toggle('hidden', tabName !== 'groups');
+            el.tabDatabase.classList.toggle('hidden', tabName !== 'database');
+
+            // Render respective updates
+            if (tabName === 'picker') renderPickerTab();
+            if (tabName === 'groups') renderGroupsTab();
+            if (tabName === 'database') renderDatabaseTab();
+        };
+
+        // Actions and mutations
+        const toggleExcludeStudent = (student) => {
+            const absentKey = `${state.selectedClass}:${student}`;
+            if (state.absentStudents.includes(absentKey)) return; // Can't exclude absent students
+
+            if (state.excludedStudents.includes(student)) {
+                state.excludedStudents = state.excludedStudents.filter(s => s !== student);
+            } else {
+                state.excludedStudents.push(student);
+            }
+            renderPickerTab();
+        };
+
+        // Edit Inline Handlers
+        const startStudentEdit = (student) => {
+            state.editingStudent = student;
+            if (state.activeTab === 'picker') renderPickerTab();
+            if (state.activeTab === 'database') renderDatabaseTab();
+        };
+
+        const cancelStudentEdit = () => {
+            state.editingStudent = null;
+            if (state.activeTab === 'picker') renderPickerTab();
+            if (state.activeTab === 'database') renderDatabaseTab();
+        };
+
+        const saveStudentEdit = (oldStudent) => {
+            const id = state.activeTab === 'picker' ? `inline-edit-${oldStudent}` : `db-edit-${oldStudent}`;
+            const inputEl = document.getElementById(id);
+            if (!inputEl) return;
+
+            const newStudent = inputEl.value.trim();
+            if (!newStudent) {
+                alert("Student name cannot be empty.");
+                return;
+            }
+
+            const currentClassList = state.classes[state.selectedClass] || [];
+            if (newStudent !== oldStudent && currentClassList.includes(newStudent)) {
+                alert("A student with this name already exists in this class.");
+                return;
+            }
+
+            // Update Class array
+            state.classes[state.selectedClass] = currentClassList.map(s => s === oldStudent ? newStudent : s);
+
+            // Update Exclusions Tracker
+            if (state.excludedStudents.includes(oldStudent)) {
+                state.excludedStudents = state.excludedStudents.map(s => s === oldStudent ? newStudent : s);
+            }
+
+            // Update Attendance tracker mapping (ClassName:StudentName)
+            const oldAbsentKey = `${state.selectedClass}:${oldStudent}`;
+            const newAbsentKey = `${state.selectedClass}:${newStudent}`;
+            if (state.absentStudents.includes(oldAbsentKey)) {
+                state.absentStudents = state.absentStudents.map(key => key === oldAbsentKey ? newAbsentKey : key);
+            }
+
+            // Update Last Pick result if they were active
+            if (state.pickerResult === oldStudent) {
+                state.pickerResult = newStudent;
+            }
+
+            state.editingStudent = null;
+            renderPickerTab();
+            renderDatabaseTab();
+        };
+
+        // Absent status handler
+        const toggleAbsentStatus = (student) => {
+            const absentKey = `${state.selectedClass}:${student}`;
+            
+            if (state.absentStudents.includes(absentKey)) {
+                // Return to active attendance
+                state.absentStudents = state.absentStudents.filter(key => key !== absentKey);
+            } else {
+                // Mark absent
+                state.absentStudents.push(absentKey);
+                // Also ensure they aren't on the quick temporary exclude list to avoid confusing overlap
+                state.excludedStudents = state.excludedStudents.filter(s => s !== student);
+            }
+
+            renderPickerTab();
+            renderDatabaseTab();
+        };
+
+        const deleteStudent = (student) => {
+            if (confirm(`Remove ${student} from class ${state.selectedClass}?`)) {
+                state.classes[state.selectedClass] = state.classes[state.selectedClass].filter(s => s !== student);
+                // Clean up tracking caches
+                state.excludedStudents = state.excludedStudents.filter(s => s !== student);
+                const absentKey = `${state.selectedClass}:${student}`;
+                state.absentStudents = state.absentStudents.filter(k => k !== absentKey);
+                
+                renderDatabaseTab();
+                renderPickerTab();
+            }
+        };
+
+        // Attach helper functions to the global scope for immediate onclick execution
+        window.deleteStudent = deleteStudent;
+        window.startStudentEdit = startStudentEdit;
+        window.cancelStudentEdit = cancelStudentEdit;
+        window.saveStudentEdit = saveStudentEdit;
+        window.toggleAbsentStatus = toggleAbsentStatus;
+        window.toggleExcludeStudent = toggleExcludeStudent;
+
+        const rerollGroupName = (groupId, index) => {
+            const usedNames = new Set(state.generatedGroups.map(g => g.name));
+            const newName = generateRandomGroupName(index, usedNames);
+            state.generatedGroups = state.generatedGroups.map(g => g.id === groupId ? { ...g, name: newName } : g);
+            renderGroupsTab();
+        };
+
+        window.rerollGroupName = rerollGroupName;
+
+        const clearGroups = () => {
+            state.generatedGroups = [];
+            renderGroupsTab();
+        };
+
+        window.clearGroups = clearGroups;
+
+        // Group Name Generation theme formula
+        const generateRandomGroupName = (index, usedNames) => {
+            const config = GROUP_NAME_THEMES[state.namingTheme] || GROUP_NAME_THEMES.mythical;
+            let attempts = 0;
+            let uniqueName = "";
+
+            while (attempts < 100) {
+                const pre = config.prefixes[Math.floor(Math.random() * config.prefixes.length)];
+                const noun = config.nouns[Math.floor(Math.random() * config.nouns.length)];
+                uniqueName = `${pre} ${noun}`;
+                if (!usedNames.has(uniqueName)) {
+                    usedNames.add(uniqueName);
+                    return uniqueName;
+                }
+                attempts++;
+            }
+            return `Group ${index + 1}`;
+        };
+
+        // Picker spin loop process
+        const pickRandomStudent = () => {
+            const available = getAvailableStudents();
+            if (available.length === 0) {
+                alert("No remaining active students available in this class! Reset exclusions, toggle attendance, or choose another class.");
+                return;
+            }
+
+            state.isSpinning = true;
+            state.pickerResult = null;
+            renderPickerTab();
+
+            let duration = 3000; // milliseconds
+            let startTime = Date.now();
+            let tickInterval = 50;
+
+            playSound('drumroll');
+
+            const roll = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / duration;
+
+                if (progress < 1) {
+                    tickInterval = 50 + (progress * progress * 350); 
+                    
+                    const randIndex = Math.floor(Math.random() * available.length);
+                    const currentSpinName = available[randIndex];
+                    
+                    // Direct fast DOM update for selection phase (bypassing full render speed limits)
+                    el.displayArena.innerHTML = `
+                        <div class="animate-pulse-fast">
+                            <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-2">Selecting...</p>
+                            <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white px-6 py-4 rounded-xl bg-white/5 max-w-full truncate">
+                                ${currentSpinName}
+                            </h2>
+                        </div>
+                    `;
+                    playSound('tick');
+
+                    setTimeout(roll, tickInterval);
+                } else {
+                    const finalIndex = Math.floor(Math.random() * available.length);
+                    const winner = available[finalIndex];
+                    
+                    state.pickerResult = winner;
+                    state.isSpinning = false;
+
+                    speakName(winner);
+                    state.excludedStudents.push(winner);
+                    
+                    playSound('fanfare');
+
+                    // Confetti Celebration triggers
+                    confetti({
+                        particleCount: 150,
+                        spread: 80,
+                        origin: { y: 0.6 },
+                        colors: ['#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+                    });
+
+                    renderPickerTab();
+                }
+            };
+
+            roll();
+        };
+
+        // Generate groups algorithm (Omits absent students automatically)
+        const generateGroups = () => {
+            const rawStudents = state.classes[state.selectedClass] || [];
+            
+            // Filter out absent students
+            const students = rawStudents.filter(s => {
+                const absentKey = `${state.selectedClass}:${s}`;
+                return !state.absentStudents.includes(absentKey);
+            });
+
+            if (students.length === 0) {
+                alert("The selected class has no active/present students to group.");
+                return;
+            }
+
+            // Shuffle students (Fisher-Yates)
+            for (let i = students.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [students[i], students[j]] = [students[j], students[i]];
+            }
+
+            let numGroups = 1;
+            const totalStudents = students.length;
+
+            if (state.groupSizeMode === "count") {
+                numGroups = Math.max(1, Math.min(state.groupSizeValue, totalStudents));
+            } else {
+                const targetSize = Math.max(1, state.groupSizeValue);
+                numGroups = Math.max(1, Math.ceil(totalStudents / targetSize));
+            }
+
+            const groupsList = Array.from({ length: numGroups }, () => []);
+
+            // Distribute present students balance-wise
+            students.forEach((student, index) => {
+                const groupIndex = index % numGroups;
+                groupsList[groupIndex].push(student);
+            });
+
+            // Name assignment
+            const usedNames = new Set();
+            state.generatedGroups = groupsList.map((members, index) => {
+                const name = generateRandomGroupName(index, usedNames);
+                return {
+                    id: `group-${Date.now()}-${index}`,
+                    name: name,
+                    members: members
+                };
+            });
+
+            playSound('fanfare');
+            renderGroupsTab();
+        };
+
+        // Setup Dropdowns and Input controls
+        const initOptions = () => {
+            // Fill Class selector list
+            el.classSelect.innerHTML = '';
+            Object.keys(state.classes).forEach(className => {
+                const opt = document.createElement('option');
+                opt.value = className;
+                opt.textContent = `${className} (${state.classes[className].length} Students)`;
+                el.classSelect.appendChild(opt);
+            });
+            el.classSelect.value = state.selectedClass;
+
+            // Fill Theme Selector list
+            el.themeSelect.innerHTML = '';
+            THEMES.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.textContent = t.name;
+                el.themeSelect.appendChild(opt);
+            });
+            el.themeSelect.value = state.currentTheme.id;
+
+            // Fill Group Naming Theme Selector
+            el.namingThemeSelect.innerHTML = '';
+            Object.keys(GROUP_NAME_THEMES).forEach(themeKey => {
+                const opt = document.createElement('option');
+                opt.value = themeKey;
+                opt.textContent = GROUP_NAME_THEMES[themeKey].name;
+                el.namingThemeSelect.appendChild(opt);
+            });
+            el.namingThemeSelect.value = state.namingTheme;
+        };
+
+        // Event listeners setting
+        const setupEventListeners = () => {
+            // Class Select change
+            el.classSelect.addEventListener('change', (e) => {
+                state.selectedClass = e.target.value;
+                state.excludedStudents = [];
+                state.pickerResult = null;
+                state.editingStudent = null;
+                renderPickerTab();
+                renderDatabaseTab();
+            });
+
+            // Theme select change
+            el.themeSelect.addEventListener('change', (e) => {
+                const targetTheme = THEMES.find(t => t.id === e.target.value);
+                if (targetTheme) {
+                    state.currentTheme = targetTheme;
+                    renderTheme();
+                    renderPickerTab();
+                    renderGroupsTab();
+                    renderDatabaseTab();
+                }
+            });
+
+            // Naming theme change
+            el.namingThemeSelect.addEventListener('change', (e) => {
+                state.namingTheme = e.target.value;
+            });
+
+            // Tab button triggers
+            el.tabBtnPicker.addEventListener('click', () => setTab('picker'));
+            el.tabBtnGroups.addEventListener('click', () => setTab('groups'));
+            el.tabBtnDatabase.addEventListener('click', () => setTab('database'));
+
+            // Voice button toggle
+            el.voiceToggleBtn.addEventListener('click', () => {
+                state.voiceEnabled = !state.voiceEnabled;
+                renderPickerTab();
+            });
+
+            // Pick Trigger
+            el.pickButton.addEventListener('click', pickRandomStudent);
+
+            // Exclusions Reset Trigger
+            el.resetExclusionsBtn.addEventListener('click', () => {
+                state.excludedStudents = [];
+                state.pickerResult = null;
+                renderPickerTab();
+            });
+
+            // Grouping Mode switch count
+            el.modeCountBtn.addEventListener('click', () => {
+                state.groupSizeMode = "count";
+                renderGroupsTab();
+            });
+
+            // Grouping Mode switch size
+            el.modeSizeBtn.addEventListener('click', () => {
+                state.groupSizeMode = "size";
+                renderGroupsTab();
+            });
+
+            // Group value input change
+            el.groupSizeVal.addEventListener('input', (e) => {
+                state.groupSizeValue = parseInt(e.target.value) || 1;
+            });
+
+            // Generate Groups click
+            el.generateGroupsBtn.addEventListener('click', generateGroups);
+
+            // Reset Database button trigger
+            el.resetDbBtn.addEventListener('click', () => {
+                if (window.confirm("Are you sure you want to restore the default database classes (2A, 2B, 5A, 5B)?")) {
+                    state.classes = JSON.parse(JSON.stringify(DEFAULT_CLASSES));
+                    state.selectedClass = "2A";
+                    state.excludedStudents = [];
+                    state.absentStudents = [];
+                    state.pickerResult = null;
+                    state.editingStudent = null;
+                    initOptions();
+                    renderPickerTab();
+                    renderDatabaseTab();
+                }
+            });
+
+            // CSV Upload parse handler
+            el.csvFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const text = evt.target.result;
+                        const lines = text.split(/\r?\n/);
+                        if (lines.length === 0) return;
+
+                        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                        const parsedData = {};
+                        headers.forEach(h => { if (h) parsedData[h] = []; });
+
+                        for (let i = 1; i < lines.length; i++) {
+                            const line = lines[i];
+                            if (!line.trim()) continue;
+                            const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                            
+                            headers.forEach((header, colIdx) => {
+                                if (header && cells[colIdx]) {
+                                    parsedData[header].push(cells[colIdx]);
+                                }
+                            });
+                        }
+
+                        // Sanity cleaning empty items
+                        Object.keys(parsedData).forEach(key => {
+                            parsedData[key] = parsedData[key].filter(name => name.trim() !== "");
+                        });
+
+                        state.classes = {
+                            ...state.classes,
+                            ...parsedData
+                        };
+
+                        const firstKey = Object.keys(parsedData)[0];
+                        if (firstKey) {
+                            state.selectedClass = firstKey;
+                            state.excludedStudents = [];
+                            state.pickerResult = null;
+                            state.editingStudent = null;
+                        }
+
+                        initOptions();
+                        renderPickerTab();
+                        renderDatabaseTab();
+                        alert("Successfully imported CSV groups!");
+                    } catch (err) {
+                        alert("Failed parsing CSV file. Please make sure headers are on the first row.");
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Manual Class Creation Form handler
+            el.manualClassForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = el.manualClassName.value.trim();
+                const textList = el.manualClassList.value.trim();
+
+                if (!name || !textList) return;
+
+                const names = textList
+                    .split(/[\n,]+/)
+                    .map(n => n.trim())
+                    .filter(n => n.length > 0);
+
+                if (names.length === 0) {
+                    alert("Please provide at least one valid student name.");
+                    return;
+                }
+
+                state.classes[name] = names;
+                state.selectedClass = name;
+                state.excludedStudents = [];
+                state.pickerResult = null;
+                state.editingStudent = null;
+
+                // Reset Inputs
+                el.manualClassName.value = '';
+                el.manualClassList.value = '';
+
+                initOptions();
+                renderPickerTab();
+                renderDatabaseTab();
+                alert(`Successfully added custom class: ${name}`);
+            });
+        };
+
+        // Application Start
+        window.onload = () => {
+            initOptions();
+            setupEventListeners();
+            renderTheme();
+            renderPickerTab();
+        };
+    </script>
+</body>
+</html>
