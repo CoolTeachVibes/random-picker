@@ -1,509 +1,793 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTR Worksheet - Types of Reading</title>
-    <style>
-        :root {
-            --primary: #22d3ee;
-            --secondary: #f472b6;
-            --success: #10b981;
-            --error: #ef4444;
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VocabQuest</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            padding: 40px 20px;
-            margin: 0;
-        }
-
-        .worksheet-container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: var(--surface);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-        }
-
-        h1 {
-            color: var(--primary);
-            margin-top: 0;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        h2 {
-            color: var(--secondary);
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: var(--primary);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 8px;
-            margin-top: 30px;
-        }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--border);
-            color: var(--text);
-            font-size: 1.1rem;
-            padding: 5px 0;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        th, td {
-            border: 1px solid var(--border);
-            padding: 12px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            background-color: rgba(15, 23, 42, 0.4);
-            color: var(--primary);
-        }
-
-        .match-input {
-            width: 50px;
-            text-align: center;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border);
-            color: var(--primary);
-            border-radius: 4px;
-            padding: 5px;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .passage-box {
-            background: rgba(15, 23, 42, 0.5);
-            border-left: 4px solid var(--secondary);
-            padding: 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 20px 0;
-            font-style: italic;
-        }
-
-        .question-block {
-            margin-bottom: 20px;
-        }
-
-        .radio-group {
-            margin: 10px 0;
-        }
-
-        .radio-option {
-            display: block;
-            margin-bottom: 8px;
-            cursor: pointer;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 80px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 12px;
-            box-sizing: border-box;
-            resize: vertical;
-            font-family: inherit;
-            margin-top: 8px;
-            outline: none;
-        }
-
-        textarea:focus {
-            border-color: var(--secondary);
-        }
-
-        .no-print-zone {
-            max-width: 850px;
-            margin: 0 auto 20px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn {
-            background: var(--primary);
-            color: #0f172a;
-            border: none;
-            padding: 12px 24px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        /* Inline Exercise Verification Buttons */
-        .btn-exercise-check {
-            background: transparent;
-            color: var(--secondary);
-            border: 2px solid var(--secondary);
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            border-radius: 6px;
-            margin-top: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-exercise-check:hover {
-            background: var(--secondary);
-            color: #fff;
-        }
-
-        /* Specific Feedback Containers for each section */
-        .inline-feedback {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            background: rgba(15, 23, 42, 0.8);
-            border-left: 4px solid var(--primary);
-            font-size: 0.95rem;
-        }
-
-        .correct { color: var(--success); font-weight: bold; }
-        .incorrect { color: var(--error); font-weight: bold; }
-        .key-reveal { color: var(--primary); font-style: italic; }
-
-        @media print {
-            body {
-                background: #fff;
-                color: #000;
-                padding: 0;
-            }
-            .worksheet-container {
-                border: none;
-                box-shadow: none;
-                padding: 0;
-                background: #fff;
-            }
-            .no-print-zone, .btn-exercise-check, .inline-feedback {
-                display: none !important;
-            }
-            h1, h3, th {
-                color: #000 !important;
-            }
-            h2 {
-                color: #555 !important;
-            }
-            input[type="text"], textarea, .match-input {
-                border-bottom: 1px solid #000 !important;
-                color: #000 !important;
-                background: transparent !important;
-            }
-            .passage-box {
-                background: #f5f5f5;
-                border-left: 4px solid #000;
-                color: #000;
-            }
-            th, td {
-                border: 1px solid #000;
-            }
-        }
-    </style>
+  <style>
+    /* Custom Styles & Animations */
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .animate-shake { animation: shake 0.3s ease-in-out; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  </style>
 </head>
-<body>
+<body class="bg-slate-100 font-sans text-slate-800 pb-12 min-h-screen">
 
-    <div class="no-print-zone">
-        <span style="color: var(--text-muted);">💡 Work through the sections! Each exercise has its own feedback button at the end.</span>
-        <button class="btn" onclick="window.print()">Print / Save PDF</button>
+  <!-- Top Navigation Bar -->
+  <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <i class="ph ph-brain text-blue-600 text-3xl"></i>
+      <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+        VocabQuest
+      </h1>
     </div>
+    
+    <button id="nav-home-btn" onclick="goHome()" class="hidden flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors font-medium text-sm">
+      <i class="ph ph-house text-lg"></i>
+      <span class="hidden sm:inline">Back to Dashboard</span>
+    </button>
+  </header>
 
-    <div class="worksheet-container">
-        <h1>UTR English Teaching Academy</h1>
-        <h2>The "No Cap" Reading Toolkit Worksheet</h2>
+  <!-- Main App Container -->
+  <main id="app-main" class="max-w-4xl mx-auto mt-8 px-4">
+    <!-- Content rendered via JS -->
+  </main>
 
-        <div class="meta-grid">
-            <div>
-                <label>Name</label>
-                <input type="text" id="student-name" placeholder="Your name here...">
-            </div>
-            <div>
-                <label>Group</label>
-                <input type="text" placeholder="e.g., 4A">
-            </div>
-            <div>
-                <label>Vibe Level</label>
-                <input type="text" value="100% Aura" readonly style="color: var(--secondary); border: none;">
-            </div>
-        </div>
+  <script>
+    // --- Audio System (Synthesized) ---
+    const playSound = (type) => {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
 
-        <h3>🧠 PART 1: THE READING TOOLKIT VIBE CHECK</h3>
-        <p>Match the reading strategies from your presentation toolkit with their Gen Z equivalents by typing the corresponding number (1-4) in the empty column.</p>
+      if (type === 'bell') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } else if (type === 'buzzer') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      }
+    };
 
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 25%;">Reading Type</th>
-                    <th style="width: 10%; text-align: center;">Match</th>
-                    <th style="width: 65%;">The Gen Z Translation & Mission</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>A. Skimming</strong></td>
-                    <td style="text-align: center;"><input type="text" class="match-input" id="match-A" maxlength="1"></td>
-                    <td><strong>1. The "Lock In" 🔒</strong><br>Studying short texts carefully in class to analyze new grammar and vocabulary so you don't lose your teaching Aura.</td>
-                </tr>
-                <tr>
-                    <td><strong>B. Scanning</strong></td>
-                    <td style="text-align: center;"><input type="text" class="match-input" id="match-B" maxlength="1"></td>
-                    <td><strong>2. The "Vibe Check" ⚡</strong><br>Reading very fast just to get the <em>Gist</em> (the big idea/overall mood) by skipping small details.</td>
-                </tr>
-                <tr>
-                    <td><strong>C. Intensive Reading</strong></td>
-                    <td style="text-align: center;"><input type="text" class="match-input" id="match-C" maxlength="1"></td>
-                    <td><strong>3. The "Main Character Energy" 👑</strong><br>Reading long, easy texts outside of class for pure enjoyment, joy, and fluency. Zero stress.</td>
-                </tr>
-                <tr>
-                    <td><strong>D. Extensive Reading</strong></td>
-                    <td style="text-align: center;"><input type="text" class="match-input" id="match-D" maxlength="1"></td>
-                    <td><strong>4. Finding the "Receipts" 🧾</strong><br>Selective reading to find <em>one specific detail</em> like digits, dates, names, or numbers while ignoring the rest.</td>
-                </tr>
-            </tbody>
-        </table>
+    // --- Vocabulary Database ---
+    const ALL_WORDS = [
+      // Challenge 1 (Words 1-20)
+      { id: 1, word: 'access', pos: 'noun/verb', def: 'the ability to go into; to go into something when allowed to enter', sentence: 'The employees need a special keycard to gain _____ to the building.', challenge: 1 },
+      { id: 2, word: 'accurate', pos: 'adjective', def: 'correct (about information, not opinions); on target', sentence: 'The weather forecast wasn\'t very _____; it rained even though they said it would be sunny.', challenge: 1 },
+      { id: 3, word: 'achieve', pos: 'verb', def: 'to accomplish a goal', sentence: 'If you work hard, you can _____ your dreams.', challenge: 1 },
+      { id: 4, word: 'acquire', pos: 'verb', def: 'to get (especially when you will continue to get more)', sentence: 'Over the years, the museum managed to _____ a massive collection of ancient art.', challenge: 1 },
+      { id: 5, word: 'adequate', pos: 'adjective', def: 'good enough for what you need', sentence: 'Make sure you have an _____ amount of water before going on a long hike.', challenge: 1 },
+      { id: 6, word: 'adjust', pos: 'verb', def: 'to change or move a little and make better or more accurate', sentence: 'You might need to _____ the mirror in the car before you start driving.', challenge: 1 },
+      { id: 7, word: 'administration', pos: 'noun', def: 'the running of something or an organization; the people in charge', sentence: 'The school _____ announced that Friday would be a holiday.', challenge: 1 },
+      { id: 8, word: 'affect', pos: 'verb', def: 'to change, make different, have an effect', sentence: 'Lack of sleep can negatively _____ your performance on the test.', challenge: 1 },
+      { id: 9, word: 'alter', pos: 'verb', def: 'to change, to adjust', sentence: 'I need to take this suit to the tailor so they can _____ the sleeves.', challenge: 1 },
+      { id: 10, word: 'alternative', pos: 'noun/adj', def: 'other possibility or option; different, other than the main option', sentence: 'Since the highway is closed, we need to find an _____ route.', challenge: 1 },
+      { id: 11, word: 'analyze', pos: 'verb', def: 'to try to understand something better by closely looking at its details', sentence: 'The scientists will _____ the data to see if their hypothesis was correct.', challenge: 1 },
+      { id: 12, word: 'annual', pos: 'adjective', def: 'yearly; happening every year', sentence: 'The town holds its _____ festival every summer in July.', challenge: 1 },
+      { id: 13, word: 'apparent', pos: 'adjective', def: 'clearly seen or understood; seeming (but not definitely true)', sentence: 'It became quickly _____ that he had not studied for the exam.', challenge: 1 },
+      { id: 14, word: 'approach', pos: 'verb/noun', def: 'to come/go closer to something; a way to do something', sentence: 'As winter began to _____, the days grew shorter and colder.', challenge: 1 },
+      { id: 15, word: 'area', pos: 'noun', def: 'a range of subjects or studies, a field, a discipline', sentence: 'She is an expert in the _____ of marine biology.', challenge: 1 },
+      { id: 16, word: 'aspect', pos: 'noun', def: 'a feature, a characteristic, a particular part of something', sentence: 'Learning grammar is just one _____ of mastering a new language.', challenge: 1 },
+      { id: 17, word: 'assess', pos: 'verb', def: 'to look closely at and figure out the value or type of something', sentence: 'The insurance agent came to _____ the damage to the car after the accident.', challenge: 1 },
+      { id: 18, word: 'assist', pos: 'verb', def: 'to help or aid', sentence: 'The nurse will _____ the doctor during the surgery.', challenge: 1 },
+      { id: 19, word: 'assume', pos: 'verb', def: 'to believe without proof', sentence: 'You shouldn\'t _____ that someone is angry just because they are quiet.', challenge: 1 },
+      { id: 20, word: 'attitude', pos: 'noun', def: 'a set way of thinking or a set feeling about something or someone', sentence: 'Having a positive _____ can help you overcome difficult challenges.', challenge: 1 },
+      
+      // Challenge 2 (Words 21-40)
+      { id: 21, word: 'attribute', pos: 'verb/noun', def: 'to give an event or person credit for something; a quality or feature', sentence: 'Many historians _____ the fall of the empire to corruption and weak leadership.', challenge: 2 },
+      { id: 22, word: 'authority', pos: 'noun', def: 'control or responsibility over something', sentence: 'Only the principal has the _____ to change the school rules.', challenge: 2 },
+      { id: 23, word: 'available', pos: 'adjective', def: 'able to be reached, used, or bought', sentence: 'Is this dress _____ in a smaller size?', challenge: 2 },
+      { id: 24, word: 'aware', pos: 'adjective', def: 'to have knowledge of', sentence: 'Are you _____ of the new policies being implemented tomorrow?', challenge: 2 },
+      { id: 25, word: 'benefit', pos: 'noun', def: 'something good coming from an action, agreement, idea, plan, etc.', sentence: 'One major _____ of exercising regularly is having more energy.', challenge: 2 },
+      { id: 26, word: 'brief', pos: 'adjective', def: 'short (about time, not length)', sentence: 'We had a _____ meeting before lunch to discuss the plan.', challenge: 2 },
+      { id: 27, word: 'capable', pos: 'adjective', def: 'able to do', sentence: 'She is a very _____ manager who handles stress well.', challenge: 2 },
+      { id: 28, word: 'capacity', pos: 'noun', def: 'the amount or volume something can hold; ability', sentence: 'The stadium was filled to _____, with no empty seats left.', challenge: 2 },
+      { id: 29, word: 'challenge', pos: 'noun/verb', def: 'something difficult; to suggest a fight or argument', sentence: 'Climbing the mountain was the greatest _____ he had ever faced.', challenge: 2 },
+      { id: 30, word: 'circumstance', pos: 'noun', def: 'the situation, facts or environment around an event', sentence: 'I can\'t imagine any _____ where I would agree to that deal.', challenge: 2 },
+      { id: 31, word: 'comment', pos: 'noun/verb', def: 'an observation, note, or response', sentence: 'The teacher wrote a helpful _____ on the side of my essay.', challenge: 2 },
+      { id: 32, word: 'commit', pos: 'verb', def: 'to do or perform; to promise to, to make a final decision', sentence: 'Before you sign the contract, make sure you are ready to _____ to a one-year lease.', challenge: 2 },
+      { id: 33, word: 'community', pos: 'noun', def: 'a group of people living or working together', sentence: 'The local _____ worked together to clean up the park.', challenge: 2 },
+      { id: 34, word: 'compensate', pos: 'verb', def: 'to help correct a problem with another, positive thing', sentence: 'The company will _____ you for any travel expenses you pay out of pocket.', challenge: 2 },
+      { id: 35, word: 'complex', pos: 'adjective', def: 'with many different parts and difficult to understand, complicated', sentence: 'The computer program was so _____ that only senior engineers could fix it.', challenge: 2 },
+      { id: 36, word: 'component', pos: 'noun', def: 'a part of a whole', sentence: 'The motherboard is a critical _____ of any computer.', challenge: 2 },
+      { id: 37, word: 'concentrate', pos: 'verb', def: 'to focus attention on something; to come together into a smaller space', sentence: 'It is too noisy in here for me to _____ on my homework.', challenge: 2 },
+      { id: 38, word: 'concept', pos: 'noun', def: 'an abstract idea', sentence: 'The _____ of time travel is popular in science fiction movies.', challenge: 2 },
+      { id: 39, word: 'conduct', pos: 'verb', def: 'to organize and manage (for an event that take careful planning)', sentence: 'The police will _____ an investigation into the robbery.', challenge: 2 },
+      { id: 40, word: 'conflict', pos: 'noun', def: 'an argument, long battle, or difference of opinions', sentence: 'There is a scheduling _____ because two meetings are at the same time.', challenge: 2 },
+      
+      // Challenge 3 (Words 41-60)
+      { id: 41, word: 'consequence', pos: 'noun', def: 'result, effect, what happens because of an event', sentence: 'You must accept the _____ of your actions.', challenge: 3 },
+      { id: 42, word: 'considerable', pos: 'adjective', def: 'large enough or important enough to get special notice', sentence: 'He spent a _____ amount of money on the new car.', challenge: 3 },
+      { id: 43, word: 'consist', pos: 'verb', def: 'to be made of', sentence: 'A standard deck will _____ of 52 playing cards.', challenge: 3 },
+      { id: 44, word: 'constant', pos: 'adjective', def: 'not changing and not stopping; continuous', sentence: 'The baby required _____ attention from her parents.', challenge: 3 },
+      { id: 45, word: 'constitute', pos: 'verb', def: 'to be the pieces that make a whole', sentence: 'Seven days _____ a single week.', challenge: 3 },
+      { id: 46, word: 'constrain', pos: 'verb', def: 'to limit the activity of, restrict', sentence: 'We must not _____ their creativity with too many rules.', challenge: 3 },
+      { id: 47, word: 'construct', pos: 'verb', def: 'to build', sentence: 'They plan to _____ a new bridge over the river.', challenge: 3 },
+      { id: 48, word: 'consume', pos: 'verb', def: 'to eat, to use', sentence: 'These old incandescent lights _____ too much electricity.', challenge: 3 },
+      { id: 49, word: 'contact', pos: 'noun/verb', def: 'touching; having possible or normal communication; communicating', sentence: 'Please _____ me as soon as you arrive at the hotel.', challenge: 3 },
+      { id: 50, word: 'context', pos: 'noun', def: 'the information or situation around an idea, event, or something that is said', sentence: 'You misunderstood me because you took my words out of _____!', challenge: 3 },
+      { id: 51, word: 'contrast', pos: 'verb/noun', def: 'to be clearly different from; to look specifically at the differences between two things', sentence: 'In _____ to his loud brother, he is very quiet and shy.', challenge: 3 },
+      { id: 52, word: 'contribute', pos: 'verb', def: 'to give something (often money), to help reach a goal; to add to the cause of something bigger', sentence: 'Everyone needs to _____ their ideas to the group project.', challenge: 3 },
+      { id: 53, word: 'coordinate', pos: 'verb', def: 'to work with or communicate with the different people, groups, or pieces involved in a large product', sentence: 'We need someone to _____ the event so everything runs smoothly.', challenge: 3 },
+      { id: 54, word: 'core', pos: 'adjective/noun', def: 'central, of fundamental importance; the center of something', sentence: 'The _____ issue is a lack of funding for the program.', challenge: 3 },
+      { id: 55, word: 'correspond', pos: 'verb', def: 'to be a close match; to send letters back and forth', sentence: 'The numbers on the map _____ to different historical landmarks.', challenge: 3 },
+      { id: 56, word: 'criteria', pos: 'noun', def: 'the measures by which you judge or decide something', sentence: 'What are the _____ for winning this academic scholarship?', challenge: 3 },
+      { id: 57, word: 'culture', pos: 'noun', def: 'the way a group of people living in one area normally acts, including arts, style, food, and how people talk', sentence: 'Food is a very important part of Italian _____.', challenge: 3 },
+      { id: 58, word: 'data', pos: 'noun', def: 'information, facts', sentence: 'The computer analyzes the _____ to find hidden patterns.', challenge: 3 },
+      { id: 59, word: 'debate', pos: 'verb/noun', def: 'to argue, usually in a formal, polite way', sentence: 'The politicians will _____ on live television tonight.', challenge: 3 },
+      { id: 60, word: 'decline', pos: 'verb/noun', def: 'to politely say no to an invitation or offer; to become less, fewer, or smaller', sentence: 'I had to _____ the invitation because I was sick.', challenge: 3 },
 
-        <button class="btn btn-exercise-check" onclick="checkPart1()">Verify Part 1 Answers 🧐</button>
-        <div class="inline-feedback" id="feedback-part1"></div>
+      // Challenge 4 (Words 61-80)
+      { id: 61, word: 'deduce', pos: 'verb', def: 'to come to a conclusion through logic and evidence, to figure out', sentence: 'From the clues, the detective was able to _____ the truth.', challenge: 4 },
+      { id: 62, word: 'demonstrate', pos: 'verb', def: 'to show an example of, to prove with evidence', sentence: 'The chef will _____ how to make the perfect omelet.', challenge: 4 },
+      { id: 63, word: 'derive', pos: 'verb', def: 'to get or create from; to come from, originate from', sentence: 'Many English words _____ from Latin and Greek origins.', challenge: 4 },
+      { id: 64, word: 'despite', pos: 'preposition', def: 'even with (when an event is surprising because of some difficulty)', sentence: 'We enjoyed our vacation _____ the terrible weather.', challenge: 4 },
+      { id: 65, word: 'discrete', pos: 'adjective', def: 'separate, not the same thing and with no parts in common', sentence: 'The manufacturing process is broken down into several _____ steps.', challenge: 4 },
+      { id: 66, word: 'distinct', pos: 'adjective', def: 'clearly different from', sentence: 'There is a _____ difference between the two twin sisters\' personalities.', challenge: 4 },
+      { id: 67, word: 'distribute', pos: 'verb', def: 'to give out something', sentence: 'The teacher will _____ the final exams to the class now.', challenge: 4 },
+      { id: 68, word: 'diverse', pos: 'adjective', def: 'having many different types', sentence: 'New York is known for its culturally _____ population.', challenge: 4 },
+      { id: 69, word: 'element', pos: 'noun', def: 'a part of something, usually part of an idea', sentence: 'Trust is a crucial _____ of any successful relationship.', challenge: 4 },
+      { id: 70, word: 'emerge', pos: 'verb', def: 'to come out of', sentence: 'The butterfly will eventually _____ from its cocoon.', challenge: 4 },
+      { id: 71, word: 'emphasize', pos: 'verb', def: 'to place extra importance on one part', sentence: 'The speaker raised his voice to _____ his main point.', challenge: 4 },
+      { id: 72, word: 'enable', pos: 'verb', def: 'to make something possible', sentence: 'This special password will _____ you to access the secure system.', challenge: 4 },
+      { id: 73, word: 'enforce', pos: 'verb', def: 'to make people follow (a rule or law)', sentence: 'The police are here to _____ the speed limit on the highway.', challenge: 4 },
+      { id: 74, word: 'entity', pos: 'noun', def: 'a thing that exists or acts as one unit', sentence: 'The large corporation is treated as a single legal _____ in court.', challenge: 4 },
+      { id: 75, word: 'equivalent', pos: 'adjective', def: 'equal', sentence: 'One hour of time is _____ to sixty minutes.', challenge: 4 },
+      { id: 76, word: 'establish', pos: 'verb', def: 'to build, to create (of a system, organization, or idea)', sentence: 'The school wants to _____ a brand new recycling program.', challenge: 4 },
+      { id: 77, word: 'estimate', pos: 'verb/noun', def: 'to determine roughly the value or number of something, to guess a number using some information', sentence: 'Can you _____ how long it will take to fix the engine?', challenge: 4 },
+      { id: 78, word: 'evaluate', pos: 'verb', def: 'to form an idea of the the amount, number or value of something', sentence: 'The manager will _____ your performance next month for a raise.', challenge: 4 },
+      { id: 79, word: 'evident', pos: 'adjective', def: 'clearly seen or understood, obvious', sentence: 'It was _____ from her huge smile that she passed the driving test.', challenge: 4 },
+      { id: 80, word: 'exclude', pos: 'verb', def: 'to not include, to not put in a list or group', sentence: 'Please do not _____ anyone from playing the game at recess.', challenge: 4 },
 
+      // Challenge 5 (Words 81-100)
+      { id: 81, word: 'expand', pos: 'verb', def: 'to make larger; to give more detail on a subject', sentence: 'The company plans to _____ its business operations into Europe.', challenge: 5 },
+      { id: 82, word: 'expose', pos: 'verb', def: 'to show or reveal something that was hidden', sentence: 'Taking off the bandage will _____ the wound to dirt and germs.', challenge: 5 },
+      { id: 83, word: 'external', pos: 'adjective', def: 'outside (especially of a body or system)', sentence: 'This healing ointment is for _____ use on the skin only.', challenge: 5 },
+      { id: 84, word: 'facilitate', pos: 'verb', def: 'to make easy or easier', sentence: 'A good moderator will _____ a smooth discussion between the two groups.', challenge: 5 },
+      { id: 85, word: 'factor', pos: 'noun', def: 'a fact that influences or changes a result', sentence: 'Price is a major _____ when a family decides on buying a new house.', challenge: 5 },
+      { id: 86, word: 'feature', pos: 'noun/verb', def: 'an important characteristic, a property; to include as an important piece', sentence: 'The newest smartphone has a great zoom _____ on its camera.', challenge: 5 },
+      { id: 87, word: 'focus', pos: 'verb/noun', def: 'to look at, think about, or give attention to; the center of attention', sentence: 'Please _____ on your own work instead of talking to your neighbor.', challenge: 5 },
+      { id: 88, word: 'framework', pos: 'noun', def: 'a structure for a building, system, or idea', sentence: 'The constitution provides a legal _____ for how the government operates.', challenge: 5 },
+      { id: 89, word: 'function', pos: 'verb/noun', def: 'to work, to do what something should do; what something does, its purpose', sentence: 'What is the main _____ of this mysterious red button?', challenge: 5 },
+      { id: 90, word: 'fundamental', pos: 'adjective', def: 'basic, central; extremely important', sentence: 'Freedom of speech is a _____ human right in a democracy.', challenge: 5 },
+      { id: 91, word: 'furthermore', pos: 'adverb', def: 'also, in addition, what\'s more', sentence: 'It is too late to go to the park; _____, it is starting to rain.', challenge: 5 },
+      { id: 92, word: 'generate', pos: 'verb', def: 'to create, to produce (especially energy)', sentence: 'Those giant wind turbines _____ clean electricity for the entire town.', challenge: 5 },
+      { id: 93, word: 'grant', pos: 'verb', def: 'to agree to give; to admit, to say something is true', sentence: 'The magical genie agreed to _____ him three wishes.', challenge: 5 },
+      { id: 94, word: 'hence', pos: 'adverb', def: 'therefore, so, as a result', sentence: 'He was injured during practice and _____ unable to play in the big game.', challenge: 5 },
+      { id: 95, word: 'hypothesis', pos: 'noun', def: 'an idea which explains something but is unproven', sentence: 'The scientist conducted an experiment to test her new _____ about gravity.', challenge: 5 },
+      { id: 96, word: 'identify', pos: 'verb', def: 'to name, to show or figure out what something is', sentence: 'Can you _____ the suspicious man in this blurry photograph?', challenge: 5 },
+      { id: 97, word: 'illustrate', pos: 'verb', def: 'to explain with an example', sentence: 'Let me give you a quick story to _____ my point clearly.', challenge: 5 },
+      { id: 98, word: 'impact', pos: 'noun/verb', def: 'an effect that changes a situation; to affect strongly; the force of being hit hard', sentence: 'The new factory will have a huge negative _____ on the local environment.', challenge: 5 },
+      { id: 99, word: 'imply', pos: 'verb', def: 'to communicate without saying specifically, to hint at an idea', sentence: 'Are you trying to _____ that I am lying to you?', challenge: 5 },
+      { id: 100, word: 'indicate', pos: 'verb', def: 'to be a sign of, to show', sentence: 'A blinking red light will _____ that the machine is turned on.', challenge: 5 },
 
-        <h3>📖 PART 2: THE FUN PASSAGE</h3>
-        <p>Read the following tragic-comic TikTok transcript script about a chaotic day in Aguascalientes.</p>
+      // Challenge 6 (Words 101-120)
+      { id: 101, word: 'individual', pos: 'adjective/noun', def: 'single or separated; only one of', sentence: 'Each _____ student must complete their own assignment without helping each other.', challenge: 6 },
+      { id: 102, word: 'initial', pos: 'adjective', def: 'at the beginning', sentence: 'My _____ reaction was to run away, but I stayed and faced my fear.', challenge: 6 },
+      { id: 103, word: 'instance', pos: 'noun', def: 'an example, a case', sentence: 'I can think of at least one _____ where you were late for class.', challenge: 6 },
+      { id: 104, word: 'institute', pos: 'verb/noun', def: 'to start (a rule or system); a group or organization that studies or works for something specific', sentence: 'The marine biology _____ studies ocean life around the globe.', challenge: 6 },
+      { id: 105, word: 'integrate', pos: 'verb', def: 'to become a part of', sentence: 'We need to figure out how to _____ the new software with our old computer system.', challenge: 6 },
+      { id: 106, word: 'internal', pos: 'adjective', def: 'found or happening inside (a body, organization, etc)', sentence: 'After the car crash, the doctor checked the patient carefully for _____ bleeding.', challenge: 6 },
+      { id: 107, word: 'interpret', pos: 'verb', def: 'to figure out or explain the meaning of something', sentence: 'It is very hard to _____ his confusing and messy instructions.', challenge: 6 },
+      { id: 108, word: 'invest', pos: 'verb', def: 'to spend money, energy, or time on something hoping for good results later', sentence: 'You should _____ your money in a safe bank account instead of spending it all.', challenge: 6 },
+      { id: 109, word: 'investigate', pos: 'verb', def: 'to try to find answers to questions about something, to research', sentence: 'The lead detective will _____ the crime scene for clues.', challenge: 6 },
+      { id: 110, word: 'involve', pos: 'verb', def: 'to include, to have as a part', sentence: 'Does this dangerous game _____ running with scissors?', challenge: 6 },
+      { id: 111, word: 'issue', pos: 'noun', def: 'a topic or situation to talk about; a problem', sentence: 'Climate change is a major global _____ that affects everyone.', challenge: 6 },
+      { id: 112, word: 'justify', pos: 'verb', def: 'to give a good reason for an action or situation', sentence: 'How can you _____ spending so much money on a silly toy?', challenge: 6 },
+      { id: 113, word: 'label', pos: 'noun/verb', def: 'a name or phrase given to a group of things to identify them', sentence: 'Don\'t forget to put a name _____ on your luggage before flying.', challenge: 6 },
+      { id: 114, word: 'labor', pos: 'noun', def: 'work; effort', sentence: 'Building the pyramids required an unbelievable amount of manual _____ from workers.', challenge: 6 },
+      { id: 115, word: 'layer', pos: 'noun/verb', def: 'something that covers something else; to put something on top of something else', sentence: 'The birthday cake has a thick _____ of chocolate frosting on top.', challenge: 6 },
+      { id: 116, word: 'lecture', pos: 'noun/verb', def: 'a long speech about one topic (especially in a classroom)', sentence: 'The college professor gave a two-hour _____ on ancient Roman history.', challenge: 6 },
+      { id: 117, word: 'link', pos: 'verb/noun', def: 'to create a connection between two or more things; a connection between two things', sentence: 'Doctors say there is a strong _____ between smoking and getting lung cancer.', challenge: 6 },
+      { id: 118, word: 'maintain', pos: 'verb', def: 'to continue; to keep alive, to keep in good state or condition', sentence: 'It takes a lot of effort to _____ a healthy diet while traveling.', challenge: 6 },
+      { id: 119, word: 'major', pos: 'adjective', def: 'very important, or large in size', sentence: 'Graduating from college is considered a _____ life event for most people.', challenge: 6 },
+      { id: 120, word: 'maximize', pos: 'verb', def: 'to make as big as possible; to use or do as completely as possible', sentence: 'The business needs to _____ its profits this quarter to stay open.', challenge: 6 },
+
+      // Challenge 7 (Words 121-140)
+      { id: 121, word: 'mental', pos: 'adjective', def: 'of the mind', sentence: 'Solving difficult puzzles is a great _____ exercise for your brain.', challenge: 7 },
+      { id: 122, word: 'method', pos: 'noun', def: 'how to do something, a process', sentence: 'What is the most effective _____ for memorizing new vocabulary words?', challenge: 7 },
+      { id: 123, word: 'minor', pos: 'adjective', def: 'not very important; small in size', sentence: 'Luckily, the car only suffered _____ damage in the crash.', challenge: 7 },
+      { id: 124, word: 'modify', pos: 'verb', def: 'to make small changes or add to in order to make better', sentence: 'You may need to _____ the recipe if you have a peanut allergy.', challenge: 7 },
+      { id: 125, word: 'monitor', pos: 'verb/noun', def: 'to watch the quality or progress of something over time; something or somebody which monitors', sentence: 'The nurse will closely _____ the patient\'s heart rate throughout the night.', challenge: 7 },
+      { id: 126, word: 'negate', pos: 'verb', def: 'to make not true or not effective', sentence: 'Drinking alcohol will _____ the healing effects of the medicine.', challenge: 7 },
+      { id: 127, word: 'network', pos: 'noun', def: 'a system of connected pieces (especially for transportation or communication)', sentence: 'The internet is a massive global _____ of connected computers.', challenge: 7 },
+      { id: 128, word: 'nevertheless', pos: 'adverb', def: 'however, regardless', sentence: 'It was raining heavily; _____, we still went for a walk outside.', challenge: 7 },
+      { id: 129, word: 'notion', pos: 'noun', def: 'a belief; an idea', sentence: 'She had a sudden romantic _____ to quit her job and travel the world.', challenge: 7 },
+      { id: 130, word: 'objective', pos: 'noun/adjective', def: 'a goal; based in fact, not an opinion, not from personal beliefs or ideas', sentence: 'Our team\'s main _____ is to win the championship game this year.', challenge: 7 },
+      { id: 131, word: 'obtain', pos: 'verb', def: 'to get or secure something', sentence: 'You need to _____ a passport before traveling to a foreign country.', challenge: 7 },
+      { id: 132, word: 'obvious', pos: 'adjective', def: 'easily understood or seen', sentence: 'It is _____ that he is not telling the truth because he won\'t look at me.', challenge: 7 },
+      { id: 133, word: 'occupy', pos: 'verb', def: 'to be in or on a space, to fill a space', sentence: 'The giant king-sized bed will _____ most of the tiny apartment room.', challenge: 7 },
+      { id: 134, word: 'occur', pos: 'verb', def: 'to happen', sentence: 'The rare solar eclipse will _____ at exactly midnight.', challenge: 7 },
+      { id: 135, word: 'orient', pos: 'verb', def: 'to move into a position in line with some specific point; to explore and become comfortable with', sentence: 'Give me a minute to look at the map and _____ myself in this new city.', challenge: 7 },
+      { id: 136, word: 'overall', pos: 'adjective/adverb', def: 'looking at or including all pieces or factors; in general, for the most part', sentence: 'The _____ cost of the trip, including food and flights, was $500.', challenge: 7 },
+      { id: 137, word: 'participate', pos: 'verb', def: 'to join or take part in (a conversation, a game, etc.)', sentence: 'Everyone in the class is encouraged to _____ in the group discussion.', challenge: 7 },
+      { id: 138, word: 'perceive', pos: 'verb', def: 'to be aware of, to sense or feel', sentence: 'Dogs can _____ high-pitched sounds that humans cannot hear at all.', challenge: 7 },
+      { id: 139, word: 'period', pos: 'noun', def: 'a range or amount of time', sentence: 'The kingdom experienced a long _____ of peace after the terrible war ended.', challenge: 7 },
+      { id: 140, word: 'perspective', pos: 'noun', def: 'how you see something from a specific place; a point of view or opinion', sentence: 'From my _____, the movie was very boring, but my friend loved it.', challenge: 7 },
+
+      // Challenge 8 (Words 141-160)
+      { id: 141, word: 'phase', pos: 'noun', def: 'a period of time in a longer process of change', sentence: 'The software project is currently in its final testing _____ before release.', challenge: 8 },
+      { id: 142, word: 'philosophy', pos: 'noun', def: 'the study of knowledge or a set of theories knowledge and thought', sentence: 'He spent four years studying ancient Greek _____ in college.', challenge: 8 },
+      { id: 143, word: 'physical', pos: 'adjective', def: 'of the body (not mental); concrete (not abstract)', sentence: 'Professional sports require a massive amount of _____ strength and endurance.', challenge: 8 },
+      { id: 144, word: 'policy', pos: 'noun', def: 'a rule made by an organization, government, or company', sentence: 'It is strictly against company _____ to arrive late to work three times in a row.', challenge: 8 },
+      { id: 145, word: 'potential', pos: 'noun/adjective', def: 'possible ability that might be used in the future', sentence: 'This young athlete has the _____ to be a worldwide superstar one day.', challenge: 8 },
+      { id: 146, word: 'precise', pos: 'adjective', def: 'exact; carefully defined', sentence: 'Please give me _____ measurements for cutting the wood so it fits perfectly.', challenge: 8 },
+      { id: 147, word: 'predict', pos: 'verb', def: 'to say something will happen in the future', sentence: 'Nobody can perfectly _____ the future, no matter what they claim.', challenge: 8 },
+      { id: 148, word: 'previous', pos: 'adjective', def: 'happening before the one happening now (of a thing, event, or date)', sentence: 'The _____ owner of this house painted the bedroom walls blue.', challenge: 8 },
+      { id: 149, word: 'primary', pos: 'noun/adjective', def: 'first in importance', sentence: 'As your doctor, my _____ concern is your safety and health.', challenge: 8 },
+      { id: 150, word: 'principle', pos: 'noun', def: 'a rule or idea that makes the base for a system (often moral)', sentence: 'Honesty is a core _____ that our family believes in deeply.', challenge: 8 },
+      { id: 151, word: 'prior', pos: 'adjective', def: 'happening or being before', sentence: 'Do you have any _____ experience working with this complicated software?', challenge: 8 },
+      { id: 152, word: 'proceed', pos: 'verb', def: 'to begin or continue with some action', sentence: 'After the rude interruption, we will _____ with the meeting as planned.', challenge: 8 },
+      { id: 153, word: 'project', pos: 'noun/verb', def: 'a plan or task to reach a specific goal; to predict the measurement of something in the future', sentence: 'The students were worried because their big science _____ is due next Monday.', challenge: 8 },
+      { id: 154, word: 'proportion', pos: 'noun', def: 'the size or amount of something compared to the whole or other parts', sentence: 'A very large _____ of the earth\'s surface is covered in salt water.', challenge: 8 },
+      { id: 155, word: 'pursue', pos: 'verb', def: 'to follow, to chase; to try to achieve (a dream or goal)', sentence: 'After high school, he decided to _____ a career in veterinary medicine.', challenge: 8 },
+      { id: 156, word: 'range', pos: 'noun/verb', def: 'the distance between two things (like area, time, or intelligence); to be between a set minimum and maximum', sentence: 'The grocery store sells a wide _____ of products, from fresh fruit to electronics.', challenge: 8 },
+      { id: 157, word: 'react', pos: 'verb', def: 'to respond, act in answer to', sentence: 'How did he _____ when you finally told him the bad news?', challenge: 8 },
+      { id: 158, word: 'region', pos: 'noun', def: 'an area of land', sentence: 'Penguins only live in a very cold, icy _____ of the world.', challenge: 8 },
+      { id: 159, word: 'register', pos: 'verb', def: 'to put your name or other information in a list for something', sentence: 'You must _____ for your college classes before the deadline or you won\'t get in.', challenge: 8 },
+      { id: 160, word: 'regulate', pos: 'verb', def: 'to have control over a process so that it functions properly', sentence: 'The digital thermostat will automatically _____ the temperature in the house.', challenge: 8 },
+
+      // Challenge 9 (Words 161-180)
+      { id: 161, word: 'reject', pos: 'verb', def: 'to say no to something offered, to refuse or decline', sentence: 'The vending machine will _____ the coin if it senses that it is fake.', challenge: 9 },
+      { id: 162, word: 'relevant', pos: 'adjective', def: 'closely connected to the topic and therefore important', sentence: 'Please only ask questions that are directly _____ to today\'s history lesson.', challenge: 9 },
+      { id: 163, word: 'rely', pos: 'verb', def: 'to depend on, to need in order to continue well', sentence: 'You can always _____ on your best friend for help when you are in trouble.', challenge: 9 },
+      { id: 164, word: 'remove', pos: 'verb', def: 'to take away or take out', sentence: 'Please politely _____ your dirty shoes before entering the clean house.', challenge: 9 },
+      { id: 165, word: 'require', pos: 'verb', def: 'to need for a specific purpose; to set as the minimum', sentence: 'Most indoor plants _____ indirect sunlight and water to grow properly.', challenge: 9 },
+      { id: 166, word: 'research', pos: 'verb/noun', def: 'to find or search for more information about something; information collected about something', sentence: 'She is spending hours at the library doing _____ for her essay.', challenge: 9 },
+      { id: 167, word: 'reside', pos: 'verb', def: 'to live in a place', sentence: 'The royal queen and king will _____ in the grand castle on the hill.', challenge: 9 },
+      { id: 168, word: 'resolve', pos: 'verb', def: 'to agree; to decide; to solve a problem or argument', sentence: 'We must sit down and _____ this argument peacefully before things get worse.', challenge: 9 },
+      { id: 169, word: 'resource', pos: 'noun', def: 'some saved material that can be used for a purpose', sentence: 'Clean drinking water is a very valuable natural _____ that we must protect.', challenge: 9 },
+      { id: 170, word: 'respond', pos: 'verb', def: 'answer; react', sentence: 'Please take a moment to _____ to my email as soon as possible.', challenge: 9 },
+      { id: 171, word: 'restrict', pos: 'verb', def: 'to limit, to make some actions impossible', sentence: 'The doctor\'s diet will strictly _____ the amount of sugar you can eat.', challenge: 9 },
+      { id: 172, word: 'retain', pos: 'verb', def: 'to keep, continue to have or contain', sentence: 'This insulated metal mug will _____ the heat of your coffee for hours.', challenge: 9 },
+      { id: 173, word: 'role', pos: 'noun', def: 'a job or function; a position', sentence: 'He played the _____ of the evil villain in the school play.', challenge: 9 },
+      { id: 174, word: 'scheme', pos: 'noun', def: 'a large plan; the system by which something is arranged', sentence: 'The cunning criminals came up with a _____ to steal the diamond.', challenge: 9 },
+      { id: 175, word: 'section', pos: 'noun', def: 'one of a number of pieces which come together to create a whole', sentence: 'The huge library has a whole _____ dedicated entirely to science fiction books.', challenge: 9 },
+      { id: 176, word: 'secure', pos: 'verb/adjective', def: 'to attach something so that is won\'t come off; safe', sentence: 'Make sure you use a thick rope to _____ the boat to the wooden dock.', challenge: 9 },
+      { id: 177, word: 'seek', pos: 'verb', def: 'to look for, to try to find', sentence: 'During a dangerous tornado, you should _____ shelter immediately in a basement.', challenge: 9 },
+      { id: 178, word: 'select', pos: 'verb/adjective', def: 'to choose; chosen as the best from a group', sentence: 'Please take your time to _____ your favorite flavor of ice cream.', challenge: 9 },
+      { id: 179, word: 'shift', pos: 'verb/noun', def: 'to move something a short distance; a small change in position or direction', sentence: 'The cold wind began to rapidly _____ from the south to the north.', challenge: 9 },
+      { id: 180, word: 'significant', pos: 'adjective', def: 'important or big enough that you should notice or pay attention', sentence: 'Winning the gold medal is a very _____ achievement for the young athlete.', challenge: 9 },
+
+      // Challenge 10 (Words 181-200)
+      { id: 181, word: 'site', pos: 'noun', def: 'the location of something', sentence: 'This empty dirt field is the future _____ of the new children\'s hospital.', challenge: 10 },
+      { id: 182, word: 'source', pos: 'noun', def: 'where something comes from', sentence: 'The sun is our planet\'s main _____ of light and heat energy.', challenge: 10 },
+      { id: 183, word: 'specify', pos: 'verb', def: 'to say which one or clearly point to which one', sentence: 'You need to clearly _____ exactly what color of paint you want to buy.', challenge: 10 },
+      { id: 184, word: 'stable', pos: 'adjective', def: 'not likely to change, fall, or move; secure', sentence: 'Make sure the tall ladder is completely _____ before you try to climb it.', challenge: 10 },
+      { id: 185, word: 'status', pos: 'noun', def: 'the rank or social class of someone or something; the current situation that something is in', sentence: 'Check online for the delivery _____ of your package to see when it arrives.', challenge: 10 },
+      { id: 186, word: 'strategy', pos: 'noun', def: 'a plan of action to reach a desired goal', sentence: 'The clever coach came up with a winning _____ for the big basketball game.', challenge: 10 },
+      { id: 187, word: 'stress', pos: 'verb/noun', def: 'to place extra importance on one part; pressure, strain, tension; worry', sentence: 'Final exams at the end of the year always cause a lot of _____ for students.', challenge: 10 },
+      { id: 188, word: 'subsequent', pos: 'adjective', def: 'immediately after', sentence: 'The first book was great, but _____ books in the series were quite boring.', challenge: 10 },
+      { id: 189, word: 'substitute', pos: 'verb/noun', def: 'to take out and put something else in the same place; something that goes in the place of the normal thing', sentence: 'You can easily _____ honey for sugar in this baking recipe.', challenge: 10 },
+      { id: 190, word: 'sufficient', pos: 'adjective', def: 'enough in amount for what you need', sentence: 'Do we have _____ food and drinks for all the guests coming to the party?', challenge: 10 },
+      { id: 191, word: 'sustain', pos: 'verb', def: 'to help something continue, to keep going', sentence: 'He ate a large, healthy breakfast to _____ his energy all day long.', challenge: 10 },
+      { id: 192, word: 'theory', pos: 'noun', def: 'an idea or belief about how/why something works', sentence: 'Albert Einstein developed the famous _____ of relativity.', challenge: 10 },
+      { id: 193, word: 'tradition', pos: 'noun', def: 'a set of beliefs or a culture that is passed from family to family over a long period of time', sentence: 'Eating turkey on Thanksgiving is a very common American _____.', challenge: 10 },
+      { id: 194, word: 'transfer', pos: 'verb', def: 'to pass from one person or thing to another', sentence: 'You can quickly _____ money between your bank accounts using your phone.', challenge: 10 },
+      { id: 195, word: 'trend', pos: 'noun/verb', def: 'the direction or way in which something is changing', sentence: 'Wearing brightly colored, oversized clothes is a popular fashion _____ right now.', challenge: 10 },
+      { id: 196, word: 'underlying', pos: 'adjective', def: 'forming the basis for something', sentence: 'We need to investigate and find the _____ cause of the engine problem.', challenge: 10 },
+      { id: 197, word: 'valid', pos: 'adjective', def: 'from a reasonable or correct basis', sentence: 'You must have a _____ ticket to enter the movie theater.', challenge: 10 },
+      { id: 198, word: 'vary', pos: 'verb', def: 'to be a different size, amount, or character when compared to something else in a similar group', sentence: 'Prices for the exact same car can _____ wildly from dealership to dealership.', challenge: 10 },
+      { id: 199, word: 'welfare', pos: 'noun', def: 'how healthy and happy a person or group is', sentence: 'The government is legally responsible for the general _____ of its citizens.', challenge: 10 },
+      { id: 200, word: 'whereas', pos: 'conjunction', def: 'although (used to contrast two different things)', sentence: 'He loves extremely spicy food, _____ his sister prefers sweet desserts.', challenge: 10 }
+    ];
+
+    const TOTAL_CHALLENGES = 10;
+    const CHALLENGES = Array.from({ length: TOTAL_CHALLENGES }, (_, i) => ({
+      id: i + 1,
+      title: `Week ${Math.floor(i / 2) + 1} - Part ${i % 2 === 0 ? 'A' : 'B'}`,
+      description: `Challenge ${i + 1}: Master 20 new words.`,
+      words: ALL_WORDS.filter(w => w.challenge === i + 1)
+    }));
+
+    const shuffle = (array) => {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    };
+
+    // --- Global State ---
+    let currentView = 'dashboard';
+    let activeChallengeId = null;
+    let userData = { knownWords: [], scores: {} };
+    
+    // View States
+    let studyState = { words: [], index: 0, known: [], unknown: [], flipped: false };
+    let actAState = { questions: [], currentQ: 0, mistakes: 0, selectedAnswer: null };
+    let actBState = { batches: [], currentBatchIndex: 0, wordsCol: [], defsCol: [], selectedWord: null, selectedDef: null, matchedIds: [], mistakes: 0 };
+    
+    const appMain = document.getElementById('app-main');
+    const navHomeBtn = document.getElementById('nav-home-btn');
+
+    // --- Navigation & Flow ---
+    function goHome() {
+      currentView = 'dashboard';
+      navHomeBtn.classList.add('hidden');
+      renderDashboard();
+    }
+
+    function startChallenge(id) {
+      activeChallengeId = id;
+      currentView = 'study';
+      navHomeBtn.classList.remove('hidden');
+      
+      // Initialize Study State
+      const challengeWords = CHALLENGES.find(c => c.id === id).words || [];
+      if (challengeWords.length === 0) {
+        alert("Words for this challenge are not yet populated.");
+        goHome();
+        return;
+      }
+      
+      studyState = { words: challengeWords, index: 0, known: [], unknown: [], flipped: false };
+      renderStudyMode();
+    }
+
+    function saveProgress(newData) {
+      if (newData.knownWords !== undefined) userData.knownWords = newData.knownWords;
+      if (newData.scores !== undefined) userData.scores = { ...userData.scores, ...newData.scores };
+    }
+
+    // --- Renderers ---
+
+    // 1. Dashboard
+    function renderDashboard() {
+      let challengesHTML = CHALLENGES.map(challenge => {
+        const score = userData.scores[challenge.id];
+        const isCompleted = score !== undefined;
         
-        <div class="passage-box">
-            <p><strong>POV: You are trying to survive a Monday at UTR during the Feria de San Marcos.</strong></p>
-            <p><strong>User @AgsTeacherRizz • 2 days ago</strong></p>
-            <p><i>[Sad violin sound effect plays]</i> Guys, it’s literally over for me. My teaching Aura dropped to negative infinite today. So, it’s April 22nd, right in the middle of the Feria. I was at the <i>Foro de las Estrellas</i> last night singing my heart out until 2:30 AM. Absolutely no regrets. But this morning? Total cooked behavior.</p>
-            <p>I woke up at 6:45 AM. The UTR bus leaves the terminal at exactly 7:10 AM. I didn't even have time to buy a <i>bolillo con crema</i> from the tiendita. I ran like Naruto. I look out the window, and I see the bus pulling away. I had to pay 180 pesos for a taxi all the way out to El Retoño. RIP my wallet.</p>
-            <p>When I finally got to the classroom, the Coordinator was already standing there. I tried to use my teacher voice, but instead of saying "Good morning, open your books to page 45," my sleep-deprived brain literally said, <i>"Good morning, please activate your skibidi gyatt"</i> out loud to 30 freshmen. <i>[Screen freezes, black and white filter]</i> The cringe was physical.</p>
-            <p>One student recorded it. By recess, I was trending on the university’s private Facebook group with 1,200 views. If I want to survive my teaching practices next term, I need to learn how to lock in. If you see me on the bus crying, mind your business. <i>#UTR #FeriaDeSanMarcos #Cringe #HelpMe</i></p>
-        </div>
-
-
-        <h3>🛠️ PART 3: PUTTING THE TOOLS TO WORK</h3>
-        
-        <div class="question-block">
-            <label>⚡ Mission 1: Skimming (The Speed Tool)</label>
-            <p><em>Spend exactly 10 seconds looking at the text above. Do not read every word.</em></p>
-            <p><strong>1. Based on a quick glance at the hashtags, titles, and first lines, what is the gist of this story?</strong></p>
-            <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="q1" value="a"> a) A tutorial on how to teach English to freshmen.</label>
-                <label class="radio-option"><input type="radio" name="q1" value="b" id="q1-correct"> b) A teacher-in-training having an embarrassing, chaotic morning after the Feria.</label>
-                <label class="radio-option"><input type="radio" name="q1" value="c"> c) A review of the best food spots in Aguascalientes.</label>
+        return `
+          <div 
+            class="relative rounded-2xl p-6 border-2 transition-all bg-white border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer"
+            onclick="startChallenge(${challenge.id})"
+          >
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-xl font-bold text-slate-800">${challenge.title}</h3>
+                <p class="text-sm text-slate-500 font-medium">${challenge.description}</p>
+              </div>
+              ${isCompleted ? `
+                <div class="flex items-center gap-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                  <i class="ph-fill ph-trophy"></i>
+                  ${score}%
+                </div>
+              ` : ''}
             </div>
-            <button class="btn btn-exercise-check" onclick="checkMission1()">Verify Mission 1 Answer ⚡</button>
-            <div class="inline-feedback" id="feedback-mission1"></div>
+            <div class="mt-6 flex justify-end">
+              <button class="flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700">
+                ${isCompleted ? 'Review Challenge' : 'Start Challenge'} <i class="ph-bold ph-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      appMain.innerHTML = `
+        <div class="space-y-8 animate-fade-in">
+          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Welcome Back!</h2>
+            <p class="text-slate-600 text-lg">
+              You've mastered <span class="font-bold text-blue-600">${userData.knownWords.length}</span> words so far. Keep going!
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            ${challengesHTML}
+          </div>
         </div>
+      `;
+    }
 
-        <div class="question-block" style="margin-top: 30px;">
-            <label>🧾 Mission 2: Scanning (The Fact Finder)</label>
-            <p><em>Scan the text rapidly to locate the exact details. Do not read the whole text again!</em></p>
-            
-            <p><strong>2. What date did this tragic event happen?</strong></p>
-            <input type="text" id="scan-q2" placeholder="e.g., April 22nd">
-            
-            <p><strong>3. Exactly how much money did the taxi cost?</strong></p>
-            <input type="text" id="scan-q3" placeholder="e.g., 180 pesos">
-            
-            <p><strong>4. How many views did the video get by recess?</strong></p>
-            <input type="text" id="scan-q4" placeholder="e.g., 1,200">
-            
-            <br>
-            <button class="btn btn-exercise-check" onclick="checkMission2()">Verify Mission 2 Receipts 🧾</button>
-            <div class="inline-feedback" id="feedback-mission2"></div>
+    // 2. Study Mode
+    function renderStudyMode() {
+      const wordObj = studyState.words[studyState.index];
+      
+      appMain.innerHTML = `
+        <div class="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+          <div class="w-full flex justify-between text-sm font-bold text-slate-500 mb-6 px-4">
+            <span>Study Mode</span>
+            <span>Word ${studyState.index + 1} of ${studyState.words.length}</span>
+          </div>
+
+          <!-- Flashcard -->
+          <div 
+            class="w-full max-w-lg aspect-[4/3] perspective-1000 mb-8 cursor-pointer"
+            onclick="flipStudyCard()"
+          >
+            <div id="study-card-inner" class="relative w-full h-full transition-transform duration-500 transform-style-3d ${studyState.flipped ? 'rotate-y-180' : ''}">
+              
+              <!-- Front -->
+              <div class="absolute w-full h-full backface-hidden bg-white border-2 border-slate-200 rounded-3xl shadow-sm flex flex-col items-center justify-center p-8">
+                <h2 class="text-5xl font-black text-slate-800 tracking-tight">${wordObj.word}</h2>
+                <p class="mt-8 text-slate-400 font-medium flex items-center gap-2">
+                  <i class="ph-bold ph-arrow-counter-clockwise"></i> Tap to reveal definition
+                </p>
+              </div>
+
+              <!-- Back -->
+              <div class="absolute w-full h-full backface-hidden bg-blue-50 border-2 border-blue-200 rounded-3xl shadow-sm flex flex-col items-center justify-center p-8 rotate-y-180 text-center">
+                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                  ${wordObj.pos}
+                </span>
+                <p class="text-2xl font-medium text-slate-800 leading-snug">${wordObj.def}</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div id="study-controls" class="flex gap-4 transition-opacity duration-300 w-full max-w-lg ${studyState.flipped ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}">
+            <button 
+              onclick="handleStudyNext('unknown')"
+              class="flex-1 bg-white border-2 border-orange-200 text-orange-600 hover:bg-orange-50 font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-sm"
+            >
+              <i class="ph-bold ph-x text-xl"></i> This is new for me
+            </button>
+            <button 
+              onclick="handleStudyNext('known')"
+              class="flex-1 bg-blue-600 text-white hover:bg-blue-700 font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-sm"
+            >
+              <i class="ph-bold ph-check text-xl"></i> I know this already
+            </button>
+          </div>
         </div>
+      `;
+    }
 
-        <div class="question-block" style="margin-top: 30px;">
-            <label>🔒 Mission 3: Intensive Reading (The Lock-In)</label>
-            <p><em>Analyze the text deeply like the professional English teacher you are training to be.</em></p>
-            
-            <p><strong>5. The author uses the phrase "Total cooked behavior." Based on the context, what grammatical part of speech is "cooked" here, and what does the phrase mean?</strong></p>
-            <textarea id="intensive-q5" placeholder="Write your linguistic analysis here..."></textarea>
-            
-            <p><strong>6. Why is it dangerous for an English teacher to use "TikTok brainrot" slang (like skibidi) in a formal classroom setting?</strong></p>
-            <textarea id="intensive-q6" placeholder="Write your professional teaching opinion here..."></textarea>
-            
-            <button class="btn btn-exercise-check" onclick="checkMission3()">Submit for Teacher Evaluation 🔒</button>
-            <div class="inline-feedback" id="feedback-mission3"></div>
-        </div>
+    window.flipStudyCard = function() {
+      if (!studyState.flipped) {
+        studyState.flipped = true;
+        document.getElementById('study-card-inner').classList.add('rotate-y-180');
+        document.getElementById('study-controls').classList.remove('opacity-0', 'pointer-events-none');
+        document.getElementById('study-controls').classList.add('opacity-100', 'pointer-events-auto');
+      }
+    };
 
+    window.handleStudyNext = function(status) {
+      const wordId = studyState.words[studyState.index].id;
+      if (status === 'known') studyState.known.push(wordId);
+      else studyState.unknown.push(wordId);
 
-        <h3>🧑‍🏫 PART 4: THE FUTURE TEACHER CHALLENGE</h3>
-        <p>As a future bilingual educator at UTR, you need to match these strategies to your future students' academic issues. Choose between <strong>Skimming, Scanning, Intensive Reading, or Extensive Reading</strong>.</p>
+      if (studyState.index < studyState.words.length - 1) {
+        studyState.index++;
+        studyState.flipped = false;
+        renderStudyMode();
+      } else {
+        // Complete Study Mode
+        const updatedKnown = [...new Set([...userData.knownWords, ...studyState.known])];
+        const finalKnown = updatedKnown.filter(wId => !studyState.unknown.includes(wId));
+        saveProgress({ knownWords: finalKnown });
 
-        <div class="question-block">
-            <p><strong>Scenario A:</strong> Your students are taking a standardized English exam and need to find the answer to a multiple-choice question about a specific year or city name.</p>
-            <label>Your Teacher Strategy:</label>
-            <input type="text" id="challenge-A" placeholder="Strategy name...">
-        </div>
+        if (studyState.unknown.length === 0) {
+          // Knew everything!
+          saveProgress({ scores: { [activeChallengeId]: 100 } });
+          currentView = 'results';
+          renderResults();
+        } else {
+          initActivityA();
+        }
+      }
+    };
 
-        <div class="question-block">
-            <p><strong>Scenario B:</strong> You want your students to read Harry Potter or a comic book in English at home just to fall in love with the language, without worrying about checking every word in the dictionary.</p>
-            <label>Your Teacher Strategy:</label>
-            <input type="text" id="challenge-B" placeholder="Strategy name...">
-        </div>
+    // 3. Activity A
+    function initActivityA() {
+      const challengeWords = CHALLENGES.find(c => c.id === activeChallengeId).words;
+      const unknownWordsList = challengeWords.filter(w => !userData.knownWords.includes(w.id));
+      
+      const qs = unknownWordsList.map(targetWord => {
+        let distractors = shuffle(challengeWords.filter(w => w.id !== targetWord.id)).slice(0, 3);
+        let options = shuffle([targetWord, ...distractors]);
+        return { word: targetWord, sentence: targetWord.sentence, options: options };
+      });
+      
+      actAState = { questions: shuffle(qs), currentQ: 0, mistakes: 0, selectedAnswer: null };
+      currentView = 'activity_a';
+      renderActivityA();
+    }
 
-        <button class="btn btn-exercise-check" onclick="checkChallenge()">Verify Teacher Challenge 👑</button>
-        <div class="inline-feedback" id="feedback-challenge"></div>
+    function renderActivityA() {
+      const q = actAState.questions[actAState.currentQ];
+      const blankedSentence = q.sentence.replace('_____', '________');
 
-        <div style="text-align: center; margin-top: 40px; border-top: 2px dashed var(--border); padding-top: 20px; color: var(--text-muted); font-size: 0.9rem;">
-            🥇 <strong>Aura Status Tracking System Activated</strong> | <em>Remember: Reading is non-ephemeral!</em>
-        </div>
-    </div>
-
-    <script>
-        // Check Part 1 Matching Matrix
-        function checkPart1() {
-            const matchA = document.getElementById('match-A').value.trim();
-            const matchB = document.getElementById('match-B').value.trim();
-            const matchC = document.getElementById('match-C').value.trim();
-            const matchD = document.getElementById('match-D').value.trim();
-            const container = document.getElementById('feedback-part1');
-            container.style.display = 'block';
-
-            if (matchA === '2' && matchB === '4' && matchC === '1' && matchD === '3') {
-                container.innerHTML = `<span class="correct">👑 W Rizz! 4/4 Matrix Match!</span> You matched the Toolkit strategies perfectly with their Gen Z vibes (+100 Aura).`;
-                container.style.borderColor = 'var(--success)';
-            } else {
-                container.innerHTML = `<span class="incorrect">❌ Caught Lacking!</span> Some matches are out of alignment. <br>
-                <span class="key-reveal">The correct keys: A ➔ 2 (Vibe Check), B ➔ 4 (Receipts), C ➔ 1 (Lock In), D ➔ 3 (Main Character Energy).</span>`;
-                container.style.borderColor = 'var(--error)';
-            }
+      const optionsHTML = q.options.map(opt => {
+        let btnStyle = "bg-white border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-700";
+        
+        if (actAState.selectedAnswer === opt.id) {
+          if (opt.id === q.word.id) btnStyle = "bg-green-100 border-2 border-green-500 text-green-800 shadow-inner";
+          else btnStyle = "bg-red-100 border-2 border-red-500 text-red-800 shadow-inner";
+        } else if (actAState.selectedAnswer && opt.id === q.word.id) {
+          btnStyle = "bg-green-50 border-2 border-green-400 text-green-700 opacity-80";
+        } else if (actAState.selectedAnswer) {
+          btnStyle = "bg-white border-2 border-slate-100 text-slate-400 opacity-50";
         }
 
-        // Check Part 3 - Mission 1 Radio option
-        function checkMission1() {
-            const q1Correct = document.getElementById('q1-correct').checked;
-            const container = document.getElementById('feedback-mission1');
-            container.style.display = 'block';
+        return `
+          <button
+            onclick="handleAnswerA(${opt.id})"
+            ${actAState.selectedAnswer ? 'disabled' : ''}
+            class="p-5 rounded-xl font-bold text-lg transition-all duration-200 ${btnStyle}"
+          >
+            ${opt.word}
+          </button>
+        `;
+      }).join('');
 
-            if (q1Correct) {
-                container.innerHTML = `<span class="correct">⚡ Skimming Mastered!</span> Exact selection! Option (b) catches the structural overview/gist within a 10-second window.`;
-                container.style.borderColor = 'var(--success)';
-            } else {
-                container.innerHTML = `<span class="incorrect">❌ Cringe metric alert.</span> Skimming requires looking at titles/moods quickly. <br><span class="key-reveal">Correct answer is (b) because the passage outlines a tragic/unfortunate morning after the Feria.</span>`;
-                container.style.borderColor = 'var(--error)';
-            }
+      let feedbackHTML = '';
+      if (actAState.selectedAnswer) {
+        const isCorrect = actAState.selectedAnswer === q.word.id;
+        feedbackHTML = `
+          <div class="mt-8 text-center text-xl font-bold animate-bounce ${isCorrect ? 'text-green-600' : 'text-red-500'}">
+            ${isCorrect ? 'Correct!' : 'Oops, that was wrong.'}
+          </div>
+        `;
+      }
+
+      appMain.innerHTML = `
+        <div class="max-w-2xl mx-auto py-8 animate-fade-in">
+          <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">Activity A: Fill in the Blank</h2>
+            <div class="text-sm font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+              ${actAState.currentQ + 1} / ${actAState.questions.length}
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 mb-8 min-h-[160px] flex items-center justify-center text-center">
+            <p class="text-2xl font-medium text-slate-700 leading-relaxed">
+              ${blankedSentence}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            ${optionsHTML}
+          </div>
+          ${feedbackHTML}
+        </div>
+      `;
+    }
+
+    window.handleAnswerA = function(optionId) {
+      if (actAState.selectedAnswer) return;
+      actAState.selectedAnswer = optionId;
+      
+      const q = actAState.questions[actAState.currentQ];
+      const isCorrect = optionId === q.word.id;
+      
+      if (isCorrect) playSound('bell');
+      else { playSound('buzzer'); actAState.mistakes++; }
+
+      renderActivityA(); // Update UI to show colors
+
+      setTimeout(() => {
+        actAState.selectedAnswer = null;
+        if (actAState.currentQ < actAState.questions.length - 1) {
+          actAState.currentQ++;
+          renderActivityA();
+        } else {
+          initActivityB();
         }
+      }, 1500);
+    };
 
-        // Check Part 3 - Mission 2 Text fields (Scanning)
-        function checkMission2() {
-            const q2 = document.getElementById('scan-q2').value.toLowerCase();
-            const q3 = document.getElementById('scan-q3').value.toLowerCase();
-            const q4 = document.getElementById('scan-q4').value;
-            const container = document.getElementById('feedback-mission2');
-            container.style.display = 'block';
+    // 4. Activity B
+    function initActivityB() {
+      const challengeWords = CHALLENGES.find(c => c.id === activeChallengeId).words;
+      const unknownWordsList = challengeWords.filter(w => !userData.knownWords.includes(w.id));
+      
+      let shuffled = shuffle([...unknownWordsList]);
+      let newBatches = [];
+      for (let i = 0; i < shuffled.length; i += 5) {
+        newBatches.push(shuffled.slice(i, i + 5));
+      }
+      
+      actBState = { batches: newBatches, currentBatchIndex: 0, mistakes: actAState.mistakes };
+      loadBatchB();
+      
+      currentView = 'activity_b';
+      renderActivityB();
+    }
 
-            // Relaxed validation patterns for keywords
-            let q2Valid = q2.includes('22') || q2.includes('april');
-            let q3Valid = q3.includes('180');
-            let q4Valid = q4.includes('1,200') || q4.includes('1200');
+    function loadBatchB() {
+      const currentBatch = actBState.batches[actBState.currentBatchIndex];
+      actBState.wordsCol = shuffle([...currentBatch]);
+      actBState.defsCol = shuffle([...currentBatch]);
+      actBState.selectedWord = null;
+      actBState.selectedDef = null;
+      actBState.matchedIds = [];
+    }
 
-            if (q2Valid && q3Valid && q4Valid) {
-                container.innerHTML = `<span class="correct">🧾 Receipts Confirmed!</span> Excellent scanning skills. Your eyes moved rapidly and isolated the data values perfectly without reading the filler content.`;
-                container.style.borderColor = 'var(--success)';
-            } else {
-                container.innerHTML = `<span class="incorrect">❌ Missing Receipts!</span> Check your targets again.<br>
-                <span class="key-reveal">Targets Key: Date = <strong>April 22nd</strong> | Taxi = <strong>180 pesos</strong> | Views = <strong>1,200 views</strong>.</span>`;
-                container.style.borderColor = 'var(--error)';
-            }
+    function renderActivityB() {
+      const wordsHTML = actBState.wordsCol.map(item => {
+        const isMatched = actBState.matchedIds.includes(item.id);
+        const isSelected = actBState.selectedWord === item.id;
+        const isErrorState = isSelected && actBState.selectedDef && actBState.selectedWord !== actBState.selectedDef;
+
+        let baseClass = "p-4 rounded-xl border-2 text-center font-bold text-lg cursor-pointer transition-all duration-200 select-none ";
+        if (isMatched) baseClass += "bg-slate-100 border-slate-200 text-slate-300 opacity-50 pointer-events-none";
+        else if (isErrorState) baseClass += "bg-red-100 border-red-500 text-red-700 animate-shake";
+        else if (isSelected) baseClass += "bg-blue-100 border-blue-500 text-blue-800 shadow-inner";
+        else baseClass += "bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:shadow-md";
+
+        return `
+          <div 
+            id="word-${item.id}"
+            class="${baseClass}"
+            onclick="!${isMatched} && !${isErrorState} && handleSelectB('word', ${item.id})"
+          >
+            ${item.word}
+          </div>
+        `;
+      }).join('');
+
+      const defsHTML = actBState.defsCol.map(item => {
+        const isMatched = actBState.matchedIds.includes(item.id);
+        const isSelected = actBState.selectedDef === item.id;
+        const isErrorState = isSelected && actBState.selectedWord && actBState.selectedDef !== actBState.selectedWord;
+
+        let baseClass = "p-4 rounded-xl border-2 font-medium text-sm md:text-base cursor-pointer transition-all duration-200 select-none flex items-center min-h-[64px] ";
+        if (isMatched) baseClass += "bg-slate-100 border-slate-200 text-slate-300 opacity-50 pointer-events-none";
+        else if (isErrorState) baseClass += "bg-red-100 border-red-500 text-red-700 animate-shake";
+        else if (isSelected) baseClass += "bg-blue-100 border-blue-500 text-blue-800 shadow-inner";
+        else baseClass += "bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:shadow-md";
+
+        return `
+          <div 
+            id="def-${item.id}"
+            class="${baseClass}"
+            onclick="!${isMatched} && !${isErrorState} && handleSelectB('def', ${item.id})"
+          >
+            ${item.def}
+          </div>
+        `;
+      }).join('');
+
+      appMain.innerHTML = `
+        <div class="max-w-4xl mx-auto py-8 animate-fade-in">
+          <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-slate-800">Activity B: Match to Definition</h2>
+            <div class="text-sm font-bold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+              Batch ${actBState.currentBatchIndex + 1} / ${actBState.batches.length}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-3">${wordsHTML}</div>
+            <div class="flex flex-col gap-3">${defsHTML}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    window.handleSelectB = function(type, id) {
+      if (type === 'word') actBState.selectedWord = actBState.selectedWord === id ? null : id;
+      else actBState.selectedDef = actBState.selectedDef === id ? null : id;
+
+      renderActivityB();
+
+      if (actBState.selectedWord && actBState.selectedDef) {
+        if (actBState.selectedWord === actBState.selectedDef) {
+          // Correct Match
+          playSound('bell');
+          actBState.matchedIds.push(actBState.selectedWord);
+          actBState.selectedWord = null;
+          actBState.selectedDef = null;
+          renderActivityB();
+
+          if (actBState.matchedIds.length === actBState.wordsCol.length) {
+            setTimeout(() => {
+              if (actBState.currentBatchIndex < actBState.batches.length - 1) {
+                actBState.currentBatchIndex++;
+                loadBatchB();
+                renderActivityB();
+              } else {
+                // Finish Challenge
+                const totalTested = CHALLENGES.find(c => c.id === activeChallengeId).words.filter(w => !userData.knownWords.includes(w.id)).length;
+                const maxPossible = totalTested * 2;
+                let penalty = (actBState.mistakes * 100) / maxPossible;
+                let finalScore = Math.max(0, Math.round(100 - penalty));
+                
+                const prevBest = userData.scores[activeChallengeId] || 0;
+                saveProgress({ scores: { [activeChallengeId]: Math.max(prevBest, finalScore) } });
+                
+                currentView = 'results';
+                renderResults();
+              }
+            }, 1000);
+          }
+        } else {
+          // Incorrect Match
+          playSound('buzzer');
+          actBState.mistakes++;
+          
+          setTimeout(() => {
+            actBState.selectedWord = null;
+            actBState.selectedDef = null;
+            renderActivityB();
+          }, 800);
         }
+      }
+    };
 
-        // Evaluates written feedback for Intensive textboxes
-        function checkMission3() {
-            const q5 = document.getElementById('intensive-q5').value.trim();
-            const q6 = document.getElementById('intensive-q6').value.trim();
-            const container = document.getElementById('feedback-mission3');
-            container.style.display = 'block';
+    // 5. Results
+    function renderResults() {
+      const score = userData.scores[activeChallengeId];
+      
+      if (score > 80) {
+        playSound('bell');
+        setTimeout(() => playSound('bell'), 200);
+        setTimeout(() => playSound('bell'), 400);
+      }
 
-            if(q5.length < 10 || q6.length < 10) {
-                container.innerHTML = `<span class="incorrect">⚠️ Write a bit more!</span> Intensive reading needs a detailed, thorough analysis. Don't be lazy!`;
-                container.style.borderColor = 'var(--error)';
-            } else {
-                container.innerHTML = `<span class="correct">🔒 Analysis Logged!</span> Great pedagogical reflection. <br>
-                <span class="key-reveal"><strong>Linguistic Blueprint Check:</strong> "Cooked" acts as an adjective meaning doomed/ruined. As a future UTR teacher, overusing slang can compromise target language acquisition models and drop structural discipline boundaries.</span>`;
-                container.style.borderColor = 'var(--primary)';
-            }
-        }
+      let message = "Good effort!";
+      if (score >= 90) message = "Incredible Job!";
+      else if (score >= 70) message = "Great Work!";
 
-        // Check Part 4 Strategy text entries
-        function checkChallenge() {
-            const ansA = document.getElementById('challenge-A').value.toLowerCase().trim();
-            const ansB = document.getElementById('challenge-B').value.toLowerCase().trim();
-            const container = document.getElementById('feedback-challenge');
-            container.style.display = 'block';
+      appMain.innerHTML = `
+        <div class="min-h-[60vh] flex flex-col items-center justify-center animate-fade-in text-center px-4">
+          <div class="bg-white rounded-3xl p-10 md:p-16 shadow-lg border border-slate-200 w-full max-w-lg">
+            <div class="w-24 h-24 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-6">
+              <i class="ph-fill ph-trophy text-blue-600 text-5xl"></i>
+            </div>
+            
+            <h2 class="text-3xl font-black text-slate-800 mb-2">${message}</h2>
+            <p class="text-slate-500 font-medium mb-8">You've completed Challenge ${activeChallengeId}.</p>
+            
+            <div class="mb-10">
+              <div class="text-7xl font-black text-blue-600 mb-2">${score}%</div>
+              <div class="text-sm font-bold text-slate-400 uppercase tracking-widest">Accuracy Score</div>
+            </div>
 
-            let aValid = ansA.includes('scan');
-            let bValid = ansB.includes('extensive');
+            <button 
+              onclick="goHome()"
+              class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            >
+              <i class="ph-bold ph-house text-xl"></i> Return to Dashboard
+            </button>
+          </div>
+        </div>
+      `;
+    }
 
-            if (aValid && bValid) {
-                container.innerHTML = `<span class="correct">👑 Future Coordinator Energy!</span> You successfully matched your classroom strategies. You are ready to train students at the top level!`;
-                container.style.borderColor = 'var(--success)';
-            } else {
-                container.innerHTML = `<span class="incorrect">❌ Instructional Error!</span> Rethink your methodological recommendations.<br>
-                <span class="key-reveal">Correct answers: Scenario A ➔ <strong>Scanning</strong> (to grab exact facts/digits fast) | Scenario B ➔ <strong>Extensive Reading</strong> (for overall enjoyment/pleasure without micro-translation).</span>`;
-                container.style.borderColor = 'var(--error)';
-            }
-        }
-    </script>
+    // Initialize App
+    renderDashboard();
+
+  </script>
 </body>
 </html>
